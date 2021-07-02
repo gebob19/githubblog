@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+  <title>Encapsulating Capsule Networks: Everything You Need To Know</title>
+  <meta name="description" content="When applying Convolutional Neural Networks (CNNs) (LeCun et al., 1990) to a computer vision task, a change in viewpoint (change in orientation, position, sh...">
+  <meta name="author" content="robotkang">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Encapsulating Capsule Networks: Everything You Need To Know">
+  <meta name="twitter:description" content="When applying Convolutional Neural Networks (CNNs) (LeCun et al., 1990) to a computer vision task, a change in viewpoint (change in orientation, position, sh...">
+  
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Encapsulating Capsule Networks: Everything You Need To Know">
+  <meta property="og:description" content="When applying Convolutional Neural Networks (CNNs) (LeCun et al., 1990) to a computer vision task, a change in viewpoint (change in orientation, position, sh...">
+  
+  <link rel="icon" type="image/png" href="/images/favicon.png" />
+  <link href="/images/favicon.png" rel="shortcut icon" type="image/png">
+  
+  <link rel="stylesheet" href="/css/main.css">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="canonical" href="/1983.html">
+  <link rel="alternate" type="application/rss+xml" title="Brennan Gebotys" href="/feed.xml">
+  
+  <!-- <meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" />
+   -->
+<!-- 自动将http的不安全请求升级为https -->
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
+<!-- 修正文章访问量统计、20201009 -->
+  <meta name="referrer" content="no-referrer-when-downgrade">
+
+<!-- Valine Comment -->
+    
+
+<!-- google ads -->
+    <!-- <script data-ad-client="ca-pub-7648908799310520" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> -->
+
+</head>
+
+
+  <body style="height:1000px;">
+
+    <span class="mobile btn-mobile-menu">        
+      <div class="nav_container">
+         <nav class="nav-menu-item" style = "float:right">
+            <i class="nav-menu-item">
+              <a href="/#blog" title="" class="blog-button">  Blog
+              </a>
+            </i>
+            
+                <i class="nav-menu-item">
+
+                  <a href="/about" title="about" class="btn-mobile-menu__icon">
+                      About
+                  </a>
+                </i>
+            
+          </nav>
+      </div>
+    </span>
+
+
+    <header class="panel-cover panel-cover--collapsed">
+<style type="text/css">
+
+/* body {background-image:url(http://omjh2j5h3.bkt.clouddn.com/background.png);} */
+
+p.flower {background-image: url(http://omjh2j5h3.bkt.clouddn.com/background-cover.jpg); padding: 20px;}
+</style>
+  
+  <div class="panel-main">
+
+    <div class="panel-main__inner panel-inverted">
+    <div class="panel-main__content">
+        <!-- 头像效果-start -->
+        <div class="ih-item circle effect right_to_left">            
+            <!-- <a href="/#blog" title="Brennan Gebotys" class="blog-button"> -->
+            <a href="/" title="Brennan Gebotys" class="blog-button">
+                <div class="img"><img src="/images/avatar.jpg" alt="img"></div>
+                <div class="info">
+                    <div class="info-back">
+                        <h1> 
+                            
+                                Brennan
+                            
+                        </h1>
+                        <p>
+                           
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- 头像效果-end -->
+        <h1 class="panel-cover__title panel-title"><a href="/#blog" title="link to homepage for Brennan Gebotys" class="blog-button">Brennan Gebotys</a></h1>
+        
+        <span class="panel-cover__subtitle panel-subtitle">Welcome!</span>
+        
+        <hr class="panel-cover__divider" style="height:1px;border:none;border-top:1px solid #555555;"/>
+        <p class="panel-cover__description">Machine Learning, Statistics, and All Things Cool</p>
+        <hr class="panel-cover__divider panel-cover__divider--secondary" style="height:1px;border:none;border-top:1px solid #555555;"/>
+        
+        
+        
+
+        <div class="navigation-wrapper">
+          <div>
+            <nav class="cover-navigation cover-navigation--primary">
+              <ul class="navigation">
+                <li class="navigation__item"><a href="/#blog" title="" class="blog-button">Blog</a></li>
+                
+                  <li class="navigation__item"><a href="/about" title="about">About</a></li>
+                
+              </ul>
+            </nav>
+          </div>          
+        </div>
+
+
+        </div>
+      </div>
+    </div>
+    
+    
+    <div class="panel-cover--overlay cover-disabled"></div>
+    
+  </div>
+</header>
+
+
+    <div class="content-wrapper">
+        <div class="content-wrapper__inner">
+            <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- latex公式支持代码 end -->
+
+<!-- 代码高亮设置 begin 
+<link rel="stylesheet" href="/css/pygments-default.css">
+ 代码高亮设置 end -->
+
+
+<article class="post-container post-container--single" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title">Encapsulating Capsule Networks: Everything You Need To Know</h1>
+    <div class="post-meta" style="color:#C3C3C3;border-bottom-width: 1px;border-bottom-style: dashed;padding-bottom: 0px;padding-top: 5px;">
+      <!-- <img src="/images/calendar.png" width="20px" style="vertical-align:text-top;"/>  -->
+      <time datetime="2019-08-03 00:00:00 -0400" itemprop="datePublished" class="post-meta__date date">2019-08-03</time>  
+         
+     <!-- <span id="busuanzi_container_page_pv">
+  	 阅读：<span id="busuanzi_value_page_pv"></span>次 -->
+	 <!-- </span> -->
+    </p>
+    </div>
+  </header>
+
+  <section class="post">
+
+    <p>When applying Convolutional Neural Networks (CNNs) <a class="citation" href="#NIPS1989_293">(LeCun et al., 1990)</a> to a computer vision task, a change in viewpoint (change in orientation, position, shear, etc.) is likely to lead to drastically different network activations, hindering the model’s ability to generalize. To solve this problem, current CNNs require a large number of parameters, datasets and computational power.</p>
+
+<p>This lead to the introduction of Capsule Networks <a class="citation" href="#tae">(Hinton et al., 2011)</a>. Capsule Networks aim to generalize to different viewpoints by taking advantage of the fact that the relationship between parts of an object is viewpoint invariant. It has been shown that these networks generalize better than standard CNNs, are more robust to adversarial attacks, achieve higher accuracy, all while requiring significantly fewer parameters.</p>
+
+<p>In this post, we focus on the following topics…</p>
+
+<ul>
+  <li>Introduction to the Viewpoint Problem
+    <ul>
+      <li>CNN’s Solution</li>
+      <li>Capsule Network’s Solution</li>
+    </ul>
+  </li>
+  <li>Introduction to Capsule Networks</li>
+  <li>Routing Algorithms
+    <ul>
+      <li>Dynamic Routing Between Capsules <a class="citation" href="#drbc">(Sabour et al., 2017)</a></li>
+      <li>Matrix Capsules with EM Routing <a class="citation" href="#mcwer">(Hinton et al., 2018)</a>
+        <ul>
+          <li>with a prerequisite: Gaussian Mixtures with EM</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>Though this may seem intimidating, don’t worry, as long as you don’t have a medical phobia of capsules, you’ll be able to swallow all the knowledge in this post.</p>
+
+<h1 id="the-problem">The Problem</h1>
+
+<p>The problem comes from the goal of computer vision generalization, as we want our models to generalize to unseen data. My version of generalization is as follows,</p>
+
+<blockquote>
+  <p>After training on an image, when tested on a slightly modified version of the image, the two responses are similar.</p>
+</blockquote>
+
+<p>One of the main reasons that test images are ‘slight modifications’ of training images is a change in viewpoint. A change in viewpoint is defined as,</p>
+<blockquote>
+  <p>A change in the position from which something or someone is observed.</p>
+</blockquote>
+
+<p>A few examples of viewpoint transformations are as follows,</p>
+<ul>
+  <li>Rotations (rotating 90 degrees)</li>
+  <li>Shifts (moving 30 pixels left)</li>
+  <li>Scaling (zooming in/moving closer; shift in the +z axis)</li>
+</ul>
+
+<p><em>Note:</em> Viewpoint-transformations can modify part(s) of the image or the entire image and can be applied to any of the 3 dimensions (x, y, or z).</p>
+
+<div align="center">
+<iframe src="https://giphy.com/embed/5QTKDImCF2wOnJpRFs" width="480" height="270" frameborder="0" class="giphy-embed" allowfullscreen=""></iframe>
+</div>
+<p><em>Tip:</em> Would your model be able to identify the car throughout all of its different viewpoint changes?</p>
+
+<p>If we can reasonably account for viewpoint variability in images we will improve model generalization. Consequently, when improving model generalization we are also likely to improve model test accuracy while requiring fewer data examples and parameters.</p>
+
+<h1 id="solutions">Solutions</h1>
+
+<p>In this section, we briefly discuss solutions to the change in viewpoint, including the CNN solution and The Capsule Network solution. Both solutions include some kind of representation learning and information routing.</p>
+
+<p>We define activations as \(a \in A\), model input as \(x \in X\), our model as \(f: X \rightarrow A\) and a viewpoint transformation as \(T\).</p>
+
+<h2 id="the-cnn-solution---brute-force-and-extract">The CNN Solution - Brute Force and Extract</h2>
+
+<p>To account for viewpoint changes, general CNNs aim to model viewpoint-<em>invariance</em>. Invariance is defined as,</p>
+
+\[f(Tx) = f(x) \tag{0}\]
+
+<p>Less formally, CNNs want their network activations to remain unchanged regardless of the viewpoint transformation applied. To show how CNNs could achieve this we must first introduce Data Augmentation and Max-pooling.</p>
+
+<h3 id="data-augmentation---the-representations">Data Augmentation - The Representations</h3>
+
+<p>A popular method to improve model generalization is to train on randomly augmented data examples. However, this turns out to be problematic and inefficient.</p>
+
+<p>Learning viewpoint representations from data augmentations is difficult as most viewpoint transformations require 3D data. As most computer vision tasks train on 2D data, we are limited to simple 2D transformations.</p>
+
+<p>Models which learn from the few viewpoint transformations we can apply turn out to be parameter inefficient. It’s been shown that early layers in a CNN trained with data augmentation are rotated, scaled and translated copies of one another <a class="citation" href="#visandunderstandingcnns">(Zeiler &amp; Fergus, 2013)</a>. This insight leads to the idea that CNNs could be learning specific feature detectors for each possible transformation to account for viewpoint variance, which is extremely inefficient.</p>
+
+<h3 id="max-pooling---the-routing">Max-pooling - The Routing</h3>
+
+<p>Assuming that we have learned a feature detector for each corresponding viewpoint transformation, CNNs then attempt to route this information using the max-pooling layer <a class="citation" href="#mp">(Riesenhuber &amp; Poggio, 1999)</a>.</p>
+
+<p>Max-pooling extracts the largest value in a group of neighbouring values.</p>
+
+\[f_{pool}: a_{pooled} = \max(a_{group}) \tag{1}\]
+
+<p>Max-pooling is locally shift-invariant because shifts which don’t move the largest value out of its group, result in the same \(a_{pooled}\) being extracted.</p>
+
+<p>We can formulate the max-pooling invariance as the following,</p>
+
+\[f_{pool}( T_{localshift} x) = f_{pool}(x) \tag{2}\]
+
+<p>Applying max-pooling to feature maps of a network can help us learn a viewpoint-invariant model. For example, applying max-pooling to a group of rotation weight activations, we can extract the features of the best fit rotation. Doing so would allow us to become rotation invariant.</p>
+
+<p>This leads to a CNNs approach to achieve viewpoint invariance; Learn a set of feature detectors for each viewpoint transformation and apply max-pooling to each group of transformation specific weights to extract/route the best fit activations.</p>
+
+<p>However, an important problem with max-pooling is that we end up discarding a lot of useful information in the group.</p>
+
+<h3 id="final-thoughts">Final Thoughts</h3>
+
+<p>In practice, it doesn’t work out nearly as nice and easy as I described but hopefully, this gives you a general idea about how representation learning and routing could be working with current CNNs.</p>
+
+<p>Though this technique has lead to great results, it is easy to see how extremely inefficient and expensive to train a model like this is.</p>
+
+<blockquote>
+  <p>There must be a better way!</p>
+</blockquote>
+
+<h2 id="the-capsule-network-solution---a-capsule-a-day-keeps-the-invariance-away">The Capsule Network Solution - A Capsule A Day Keeps The Invariance Away</h2>
+
+<p>Look no further, Capsule Network are here to save the day!</p>
+
+<p>Unlike standard CNNs, Capsule Networks aim to model viewpoint-<em>equivariance</em>. Equivariance is defined as,</p>
+
+\[f(Tx) = Tf(x) \tag{3}\]
+
+<p>Less formally, Capsule Networks want their network activations to change in a structured way corresponding to the viewpoint transformation. The idea is that it would be easier to model complex distributions like images if our activations change in a structured way.</p>
+
+<p>Capsule Networks achieve equivariance in two steps.</p>
+
+<ol>
+  <li>Explicitly represent parts located in the image.</li>
+  <li>Take advantage of the fact that the relationship between parts of an object is viewpoint invariant.</li>
+</ol>
+
+<p>Assuming we can identify and represent simple parts in an image (step 1), it would be nice to be able to combine these simple parts to detect more complex objects.</p>
+
+<p>For example, suppose we see the parts of an image are a pair of eyes, a nose and a mouth. Then I asked you, is there a face in the image? You would most likely check if the parts were structured in a certain way (eyes are above the nose, the mouth is right below the nose, etc.) and if they were, you would be confident there is a face in the image.</p>
+
+<p>We can be confident there is a face in the image because there is a clear relationship between the eyes, the nose and the mouth to create a face. A great property about this relationship is that its viewpoint-invariant.</p>
+
+<p>If we rotate, shift, change the brightness and apply a few other viewpoint transformations to the face (the object) and the relationships between the parts (the eyes, the nose and the mouth) and the object (the face) stay the same.</p>
+
+<p><em>Tip:</em> If you don’t believe me, look at your nose and move/rotate your head in any direction. If someone is watching you, your nose would be moving all over the place, but relative to your eyes, your nose won’t move at all. This is the invariance between parts of an object.</p>
+
+<p>Capsule Networks work like this. We will dive more into the details next.</p>
+
+<p>But before we do that, I ask you to repeat it with me…</p>
+
+<p>‘What do we want?’</p>
+
+<p>‘Equivariance to improve generalization requiring less data and parameters!’</p>
+
+<p>‘When do we want it?’</p>
+
+<p>‘Now!’</p>
+
+<p>Excellent!</p>
+
+<!-- <iframe src="https://giphy.com/embed/ZaQLbWXMT28TJHnQc9" width="480" height="193" frameBorder="0" class="center"></iframe> -->
+
+<h1 id="introduction-to-capsule-networks">Introduction to Capsule Networks</h1>
+
+<p>In this section, we cover general details and the intuition behind Capsule Networks. For more posts on the topic see ‘More Resources’ at the bottom of the page.</p>
+
+<p>We first define a few terms and the setup.</p>
+
+<p>We refer to instances in an image as either a part or an object. The relationship is that a part belongs to an object. We assume a two-layer capsule network setup for conciseness. The first layer is referred to as low-level capsules (simple parts) and the second layer is referred to as high-level capsules (complex objects). Usually, the low-level capsules are known and we want to compute the high-level capsules. Don’t worry if that last part didn’t make sense, it will soon.</p>
+
+<h2 id="part-and-object-representations---the-part-and-the-capsule">Part and Object Representations - The Part and The Capsule</h2>
+
+<blockquote>
+  <ol>
+    <li>Explicitly represent parts located in the image.</li>
+  </ol>
+</blockquote>
+
+<p>Learning to model parts of an image directly would be very difficult. This is because a simple viewpoint transformation results in a large difference in pixel space.</p>
+
+<p>We want to learn a manifold where viewpoint transformations in pixel space result in simple and easy to model differences.</p>
+
+<p>This manifold relates to the pose of a part (position, orientation, size), since applying a viewpoint transformation to the image would only result in a simple change to the affected part’s pose. Since this manifold would be very complex to specify, we learn it with a CNN.</p>
+
+<p><em>Note:</em> This is similar to learning a disentangled representation, which is a popular subject in generative modelling.</p>
+
+<p><em>Note:</em> A part could be represented by more than its pose. For example, we could represent a part by its velocity, albedo, or texture but for simplicity, we only consider its pose.</p>
+
+<p>To extract capsules from the image we pass the image through the CNN and reshape it’s feature vectors to some \(H'\) x \(W'\) x \(CapsuleDim\). This aims to encapsulate parts of the image into the learned manifold.</p>
+
+<p>Since we treat each section of the image as a part, we must also represent the probability that there is a part, which we refer to as the presence probability.</p>
+
+<p>The vector which stores the pose and presence probability of a part is called a ‘capsule’.</p>
+
+<h2 id="routing-information---complex-objects">Routing Information - Complex Objects</h2>
+
+<p>We now focus on how to combine detected parts to detect more complex objects, which is called ‘routing’.</p>
+
+<blockquote>
+  <p>2. Take advantage of the fact that the relationship between parts of an object is viewpoint invariant.</p>
+</blockquote>
+
+<p>Since we represent parts and objects with pose matrices we can represent the relationship between a part’s pose and its corresponding object’s pose with a weight matrix. It’s important to remember that this weight would remain the same after applying any viewpoint transformation because the relationship is viewpoint invariant.</p>
+
+<p>For example, given the pose of an eye \(p_{e}\), we can predict the corresponding face pose \(p_{f}\) as follows,</p>
+
+\[\begin{align}
+
+p_{e} \cdot W_{ef} &amp;= p_{f} \\ 
+
+\iff f(p_{e}) &amp;= p_{f} \tag{4}
+
+\end{align}\]
+
+<p>Applying a transformation to the face object, by the viewpoint invariant relationship we get…</p>
+
+\[(T  p_{e}) \cdot W_{ef} = T p_{f} \tag{5}\]
+
+<p>Rearranging and substituting we get,</p>
+
+\[f(T  p_{e}) = T f(p_{e}) \tag{6}\]
+
+<p>Remind you of anything? Equivariance! \(f(T x) = T f(x)\). Since we are explicitly representing poses with network activations, our model will have viewpoint equivariance.</p>
+
+<p>From simple parts extracted from the image, we now know how to detect more complex objects. But how can we be sure that the pose prediction is correct? and does the predicted face really exist?</p>
+
+<h3 id="prediction-confidence---agreement-between-predictions">Prediction Confidence - Agreement between Predictions</h3>
+
+<p>Think back to your early school days, back when you were given math homework. As readers of this blog, I’m sure you were/are all stellar students. Let’s assume your dog ate your finished homework and you can’t remember your answers.</p>
+
+<p>Your teacher would never believe you! So you do what must be done. You cheat. I know, awful, it was tough to even type that out.</p>
+
+<p>You go to your friends and ask them what answers they got. If they all got the same answer you can be pretty confident that answer is correct. However, if everyone got different answers then you cannot be sure which answer is correct.</p>
+
+<p>We follow the same principles since we extracted multiple parts/low-level capsules (nose, ears, etc.) from the image, we ask them to predict the object/high-level capsules pose (face). We can set the high-level capsules pose as the most agreed upon prediction and its presence probability as the amount of agreement.</p>
+
+<p><em>Example:</em> If most low-level capsules agree on the high-level capsule’s pose, then we can be confident, by setting a high presence probability (activate the high-level capsule).</p>
+
+<p>Usually, there will be more than one object represented in an image, so we repeat this process for every high-level capsule. Thus, every low-level capsule predicts every high-level capsule and we look for agreement between the predictions to set the high-level capsules’ value.</p>
+
+<h2 id="capsule-recap">Capsule Recap</h2>
+
+<p>We achieve viewpoint equivariance by representing parts explicitly and taking advantage of the viewpoint invariant relationships between parts of an object.</p>
+
+<p>We first transform the image into a manifold where viewpoint transformations result in simple changes, extracting poses and presence probabilities of parts in the image.</p>
+
+<p>Each part (low-level capsule) predicts each object (high-level capsule). We route agreed-upon predictions to high-level capsules and set their presence probabilities as the amount of agreement between predictions.</p>
+
+<p><em>Note:</em> The number of low-level capsules can be related to the number of receptive fields in the eye (too few can result in ‘crowding’ where a single capsule/receptive field represents more than one part/object)</p>
+
+<p>There are multiple ways to implement routing, we will cover two versions next.</p>
+
+<h1 id="routing-algorithms">Routing Algorithms</h1>
+
+<p>The two algorithms we will cover are ‘Dynamic routing between capsules’ and ‘Matrix Capsules with EM Routing’.</p>
+
+<p>If you understood the intuition in the previous section then this should be a breeze.</p>
+
+<h1 id="dynamic-routing-between-capsules">Dynamic Routing Between Capsules</h1>
+
+<p>This paper implements a very standard and easy to understand version of Capsule Networks. We cover the high-level details, for more specific details refer to the paper or other posts in the ‘More Resources’ section.</p>
+
+<h2 id="architecture">Architecture</h2>
+
+<p>The network consists of the manifold CNN, a single layer of low-level capsules and a single layer of high-level capsules representing the classes of the classification task (10 classes/high-level capsules on MNIST).</p>
+
+<p>The procedure is as follows</p>
+
+<ol>
+  <li>Extract low-level capsules using the CNN</li>
+  <li>Compute high-level capsules</li>
+</ol>
+
+<h2 id="representations">Representations</h2>
+
+<p>The capsules are represented by 8-dimensional vectors and the presence probability is represented by the magnitude of the capsule. We extract features with a standard CNN and then reshape the features to produce capsules for our image.</p>
+
+<h2 id="predictions">Predictions</h2>
+
+<p>Low-level capsules predict high-level using weights \(W_{ij}\). The \(i^{th}\) low-level capsule predicts the \(j^{th}\) high-level capsule as \(\hat{u}_{j \mid i}\).</p>
+
+\[u_i \cdot W_{ij} = \hat{u}_{j\mid i} \tag{7}\]
+
+<p>Now that we know how to compute predictions for high-level capsules, we focus on how to computationally find agreement.</p>
+
+<h2 id="routing-with-agreement">Routing with Agreement</h2>
+
+<p>For each \(j^{th}\) high-level capsule, we will have \(I\) predictions (\(\hat{u}_{1 \mid j}, \hat{u}_{2 \mid j}, ..., \hat{u}_{I \mid j}\)), one from each of the \(I\) low-level capsules.</p>
+
+<p>We find agreement with an iterative algorithm which consists of three steps,</p>
+<ol>
+  <li>Compute the high-level capsule \(s_j\), with a linear combination of predictions</li>
+  <li>Apply the squash function to \(s_j\)</li>
+  <li>Increase the weight of inlier predictions</li>
+</ol>
+
+<p>First we assign routing weights for each of the \(K\) predictions, \(c_{1 \mid j}, c_{2 \mid j}, ..., c_{I \mid j}\) for every \(j^{th}\) capsule. They are all initialized to zero.</p>
+
+\[\underline{Iteration Start}\]
+
+<p>To ensure that each part corresponds to a single object, we apply the softmax to each low-level capsules routing weights.</p>
+
+\[c_i = softmax(c_i) \tag{8}\]
+
+<p>For each high-level capsule, we compute the high-level pose \(s_j\) with a linear combination of predictions weighted by the routing weights from the low-level capsules.</p>
+
+\[s_j = \sum_i c_{i \mid j} \hat{u}_{i \mid j} \tag{9}\]
+
+<p>The squash function is then applied to ensure \(\|\mathbf{v_j}\| \leq 1\).</p>
+
+\[v_j = \dfrac{\|\mathbf{s_j}\|^2}{1 + \|\mathbf{s_j}\|^2} \dfrac{s_j}{\|\mathbf{s_j}\|} \tag{10}\]
+
+<p>Next, we update the weights \(c_{i \mid j}\) by how much they ‘agree’ with the predicted \(v_j\). Where the dot is vector dot product.</p>
+
+\[c_{i \mid j} = c_{i \mid j} + (\hat{u}_{i \mid j} \cdot v_j) \tag{11}\]
+
+<p>Since \(\hat{u}_{i \mid j} \cdot v_j = \|\mathbf{\hat{u}_{i \mid j}}\|  \|\mathbf{v_j}\| \cos \theta\) where \(\theta\) is the angle between the two vectors. Since \(\cos \theta\) has a maximum value when \(\theta = 0\) we end up increasing the weight of vectors whos angle is close to \(v_j\).</p>
+
+\[\underline{Iteration End}\]
+
+<p>In practice, we repeat the iteration 3-5 times to find agreement.</p>
+
+<p><em>Note:</em> This is similar to finding a cluster centroid in the predictions.</p>
+
+<p>That is all we will cover since there are a lot of great resources online covering this algorithm. Taken from the paper, the algorithm is below.</p>
+
+<div align="center">
+
+<img src="https://gebob19.github.io/assets/capsule/dynamicrouting.png" alt="Dynamic Routing Algorithm" width="600" class="center" />
+
+</div>
+
+<h1 id="matrix-capsules-with-em-routing-prereq">Matrix Capsules with EM Routing Prereq.</h1>
+
+<p>The next algorithm we will cover is ‘Matrix Routing with EM’. Since this algorithm is the most complex and least covered online, we will focus on it in-depth.</p>
+
+<p>The algorithm relies on Gaussian Mixtures and Expectation-Maximization. We will review both topics and how they relate to the main algorithm.</p>
+
+<p>If you are familiar with both feel free to jump to the ‘Matrix Capsules with EM Routing’ section which begins to review the paper.</p>
+
+<p>For more detailed explanations and derivations on Gaussian Mixtures and EM, I highly suggest you read the linked Mixture Models notes written by University of Toronto faculty.</p>
+
+<h2 id="mixture-of-gaussian">Mixture of Gaussian</h2>
+
+<p>For an awesome additional resource on this topic checkout Roger Grosse’s notes <a href="https://www.cs.toronto.edu/~rgrosse/csc321/mixture_models.pdf">here</a></p>
+
+<h2 id="modeling">Modeling</h2>
+<div align="center">
+<img src="https://gebob19.github.io/assets/capsule/multimodal.png" alt="Multimodal Data Distribution" width="500" />
+</div>
+
+<p>Assume our data distribution is multimodal (more than one hump). We would like to model our data with the efficient Gaussian distribution but a single Gaussian would not fit the data well.</p>
+
+<p>What in the world shall we do? The data world has not been kind to us but as readers of this blog, we will not go quietly in the night. We shall do the unthinkable and model our data with a mixture of MULTIPLE Gaussians!</p>
+
+<p>For generality, assume we want to model our data with \(K\) Gaussian distributions and our data consists of \(N\) points.</p>
+
+<p>Modelling our data with multiple Gaussians we can derive the likelihood as follows,</p>
+
+\[\begin{align}
+
+p(x) &amp;= \sum_K P(x | z=k) \; p(z=k)  \\
+&amp;= \sum_K \pi_k \; P(x | z=k) \tag{12}\\
+&amp;= \sum_K \pi_k \; \mathcal{N}(x \mid \mu_k, \sigma_k) \\
+
+\end{align}\]
+
+<p>So the parameters we aim to optimize \(\theta = \{\mu_1, \sigma_1, \pi_1, ..., \mu_K, \sigma_K, \pi_K\}\)</p>
+
+<h2 id="optimizing-with-expectation-maximization">Optimizing with Expectation-Maximization</h2>
+
+<p>There are multiple ways we could optimize our model but we do not settle for just any technique. You got it, we focus on expectation-maximization! An elegant and efficient algorithm for optimizing model parameters to our data.</p>
+
+<p><em>Note:</em> There is a more general form of EM which applies to any latent distribution but since we only use the Gaussian mixture edition, we will only focus on it.</p>
+
+<p>The heart of the algorithm is the following formula,</p>
+
+\[\begin{align}
+
+\dfrac{d}{d\theta}\log{p(x)}  &amp;= \mathbb{E}_{p(z\mid x)}[\dfrac{d}{d\theta} \log p(z, x)] \tag{13} \\
+
+&amp;= \mathbb{E}_{p(z\mid x)}[\dfrac{d}{d\theta} \log p(z) + \log p(x \mid z)] \\
+
+\end{align}\]
+
+<p>Computing \(\log p(z)\) and \(\log p(x \mid z)\) is trivial since \(\log p(z)\) is a learned parameter \(\pi_k\) and \(\log p(x \mid z)\) can be calculated with the Gaussian PDF formula.</p>
+
+<p>How would we compute \(p(z\mid x)\)? We use bayes rule to get,</p>
+
+\[\begin{align}
+
+p(z \mid x) &amp;\propto p(x \mid z) p(z) \tag{14}\\
+
+\\[0.2mm]
+
+p(z=k \mid x) &amp;= \dfrac{p(x \mid z=k) p(z=k)}{\sum_K p(x \mid z=k) p(z=k)} \\
+
+\\[0.2mm]
+
+&amp;= \dfrac{\pi_k \mathcal{N}(x \mid \mu_k, \sigma_k)}{\sum_K \pi_k \mathcal{N}(x \mid \mu_k, \sigma_k)}
+
+\end{align}\]
+
+<p>Now that we know how to compute every term, out of curiosity we evaluate the log-likelihood’s derivative \(d \ell\) for our parameters \(\mu_k\), \(\sigma_k\) and \(\pi_k\)</p>
+
+<p>For simplicity we let \(r_k^{(i)} = p(z = k \mid x^{(i)}) = \dfrac{\pi_k \mathcal{N}(x^{(i)} \mid \mu_k, \sigma_k)}{\sum_K \pi_k \mathcal{N}(x^{(i)} \mid \mu_k, \sigma_k)}\).</p>
+
+<p>Solving for the derivative of the mean of the \(k^{th}\) Gaussian, \(\mu_k\)</p>
+
+\[\begin{align}
+
+\dfrac{d \ell}{d\mu_k}  &amp;= \mathbb{E}_{p(z\mid x)}[\dfrac{d}{d\mu_k} \log p(z) + \log p(x \mid z)] \\
+
+&amp;= \sum_{i=1}^{N} r_k^{(i)} \; [\dfrac{d}{d\mu_k} (\log p(z = k) + \log p(x^{(i)} \mid z = k))] \quad \text{[By definition of Expectation]}\tag{15}\\
+
+&amp;= \sum_{i=1}^{N} r_k^{(i)} \; [\dfrac{d}{d\mu_k} (\log \pi_k + \log \mathcal{N}(x^{(i)} \mid \mu_k, \sigma_k))] \\
+
+&amp;= \sum_{i=1}^{N} r_k^{(i)} \; \dfrac{d}{d\mu_k} \log \mathcal{N}(x^{(i)} \mid \mu_k, \sigma_k) \\
+
+&amp;= \sum_{i=1}^{N} r_k^{(i)} \; (0 + \dfrac{x^{(i)} - \mu_k}{\sigma_k^2}) \\
+
+&amp;= \sum_{i=1}^{N} r_k^{(i)} \; \dfrac{x^{(i)} - \mu_k}{\sigma_k^2} \\
+
+\end{align}\]
+
+<p>This looks very simple, so simple we should be able to solve for the optimal value by setting the derivative to zero. Doing so we get the optimal value \(\mu_k^*\),</p>
+
+\[\mu_k^* = \dfrac{\sum_{i=1}^{N} r_k^{(i)} x^{(i)}}{\sum_{i=1}^{N} r_k^{(i)}} \tag{16}\]
+
+<p><em>Bystander:</em> Whoa there cowboy, your \(r_k\) depends on \(\mu_k\) and thus that optimal value is incorrect. You should put on this approximate hat to signify you it is not the true optimal value…</p>
+
+\[\hat{\mu}^*\]
+
+<p>Though this is not the true optimal value, it turns out to be a good approximation. This approximated optimal parameter \(\hat{\mu_k}^*\) is used as a ‘step’ towards the true optimal parameter \(\mu_k^*\).</p>
+
+<p>We can derive similar results on the other parameters by fixing \(r_k^{(i)}\) to obtain approximate optimal values \(\hat{\theta}^*\) for parameters \(\theta\).</p>
+
+\[\hat{\pi_k}^* \leftarrow \dfrac{1}{N} \sum_{i=1}^N r_k^{(i)} \tag{17}\\
+
+\\[0.4cm]
+
+\hat{\mu_k}^* \leftarrow \dfrac{\sum_{i=1}^N r_k^{(i)} x^{(i)}}{\sum_{i=1}^N r_k^{(i)}} 
+
+\\[0.4cm]
+
+\hat{(\sigma_k^2)}^* \leftarrow \dfrac{\sum_{i=1}^N r_k^{(i)} (x^{(i)} - \mu_k)^2}{\sum_{i=1}^N r_k^{(i)}}\]
+
+<p>This leads us to the iterative EM algorithm</p>
+
+<p>The \(E\)-Step: Compute responsibilities \(r_k\).</p>
+
+\[r_k^{(i)} \leftarrow p(z = k \mid x^{(i)}) \tag{18}\]
+
+<p>The \(M\)-Step: Compute and update parameters \(\theta\) to the approximate optimal parameters \(\hat{\theta}^*\)</p>
+
+\[\theta \leftarrow \arg\max_{\theta} \sum_{i=1}^N \sum_{k=1}^K r_k^{(i)} [\log p(z=k) + \log p(x^{(i)} \mid z = k)] \tag{19}\]
+
+<p>The algorithm fits our data iteratively by</p>
+<ol>
+  <li>Increase/decrease the weights \(r_k\) to the best/worst fit distributions</li>
+  <li>Update the parameters to fit the current weights</li>
+</ol>
+
+<p>Does this sound familiar? If you flip the steps and let the brain work its magic you have something similar to the Dynamic Routing algorithm.</p>
+
+<p>In the next section, we talk about how we can use this algorithm to model capsule routing and agreement with a Gaussian distribution.</p>
+
+<h1 id="matrix-capsules-with-em-routing">Matrix Capsules with EM Routing</h1>
+
+<p>We can now introduce EM Routing. The goal is to model low-level capsule votes with a multi-dimensional Gaussian. This turns out to be very similar to EM with a mixture of Gaussians.</p>
+
+<h2 id="representations-1">Representations</h2>
+
+<p>A capsule is represented by a 4x4 pose matrix \(M\) and an activation probability \(a\). Therefore, each capsule will have dimensions (4 x 4 + 1).</p>
+
+<p>We extract the first level capsules by passing the image through the CNN and then reshaping it’s features to some \(H'\) x \(W'\) x (4 x 4 + 1).</p>
+
+<h2 id="predictions-1">Predictions</h2>
+
+<p>The \(i^{th}\) low-level capsule makes predictions for the \(j^{th}\) high-level capsules with a learned 4x4 matrix \(W_{ij}\). There is a slight change in notation in the paper, so we will use the updated paper’s notation for consistency.</p>
+
+<p>Where \(u_i \cdot W_{ij} = \hat{u}_{j\mid i}\) is changed to \(M_i \cdot W_{ij} = V_{ij}\) in the paper. \(V_{ij}\) is the \(i^{th}\) low-level capsule’s ‘vote’ for the \(j^{th}\) high-level capsule. As well, the routing weights \(c_{i \mid j}\) are now referred to as \(R_{ij}\).</p>
+
+<h2 id="routing">Routing</h2>
+
+<p>The main difference in this algorithm is how routing is conducted.</p>
+
+<p>For the \(j^{th}\) high-level capsule we have \(I\) low-level capsule predictions (\(V_{1j}, V_{2j}, ..., V_{Ij}\)).</p>
+
+<p>We refer to the capsules in the \(L^{th}\) layer as \(\Omega_L\)</p>
+
+<p>The low-level capsules are the known capsules (usually \(\Omega_L\)) and the high-level capsules, are the capsules we are computing (usually \(\Omega_{L+1}\)).</p>
+
+<p>First, we initialize the low-level capsules routing weights uniformly across the high-level capsules</p>
+
+\[\forall i \in \Omega_L, j \in \Omega_{L+1}: R_{ij} \leftarrow \dfrac{1}{\mid \Omega_{L+1} \mid} \tag{20}\]
+
+<p>We then iterate between a \(M\)-step for each high-level capsule and an \(E\)-step for each low-level capsule.</p>
+
+\[\underline{Iteration Start}\\
+
+\\[5mm]
+
+\forall j \in \Omega_{L+1}: \text{M-STEP}(\textbf{a}, R, V, j)\]
+
+<p>The \(M\) step is as follows,</p>
+
+<ol>
+  <li>
+    <p>Since we only care about the votes for <em>existing</em> parts and active capsules, we re-weight the routing weights by each low-level capsule’s presence probability.</p>
+
+\[\forall i \in \Omega_L: R_{ij} \leftarrow R_{ij} * a_i \tag{21}\]
+  </li>
+  <li>
+    <p>We then use EM to solve for the approximate optimal parameters for the Gaussian over the low-level capsule votes.</p>
+
+    <p><em>Note:</em> Since the votes \(V_{ij}\) are multidimensional, we have to compute parameters for each dimension \(h\).</p>
+
+\[\forall h: \mu^h_j \leftarrow \dfrac{\sum_i R_{ij} V_{ij}^h}{\sum_i R_{ij}}  \tag{22}\\
+
+ \\[0.4cm]
+
+ \forall h: (\sigma_j^h)^2 \leftarrow \dfrac{\sum_i R_{ij} (V_{ij}^h - \mu_j^h)^2}{\sum_i R_{ij}}\]
+  </li>
+  <li>
+    <p>We now focus on how to compute the high-level capsule’s presence probability \(a_j\). Following the intuition of, if there is agreement between votes then the high-level capsule should be present. We can compute the ‘agreement’ by how well the Gaussian fits the weighted votes using its probability density function (PDF).</p>
+
+    <p>Computing the pdf \(P_{i \mid j}^h\) of the \(i^{th}\) low-level capsule’s vote under the \(j^{th}\) high-level capsule’s Gaussian’s \(h^{th}\) component is as follows,</p>
+
+\[P_{i \mid j}^h = \dfrac{1}{\sqrt{2\pi(\sigma_j^h)^2}} \exp(-\dfrac{(V_{ij}^h - \mu_j^h)^2}{2(\sigma_j^h)^2}) \tag{23}
+ \\
+ \\[0.4cm]
+
+ \ln(P_{i \mid j}^h) = -\dfrac{(V_{ij}^h - \mu_j^h)^2}{2(\sigma_j^h)^2} - \ln(\sigma_j^h) - \ln(2\pi)/2\]
+
+    <p>Taking into account the routing weights, the total \(Agreement\) on the \(h^{th}\) component of the \(j^{th}\) high-level capsule is as follows,</p>
+
+\[{Agreement}_j^h = \sum_i R_{ij} \ln(P_{i \mid j}^h) \tag{24}\]
+
+    <p>We want to maximize agreement. In the paper, instead of agreement they refer to the cost (negative agreement). Minimizing the cost is the same as maximizing the agreement. We can simplify the cost equation of a high-level capsule is as follows,</p>
+
+\[\begin{align}
+ {cost}_j^h &amp;= \sum_i -R_{ij} \ln(P_{i \mid j}^h) \\
+
+ &amp;=  \dfrac{\sum_i R_{ij} (V_{ij}^h - \mu_j^h)^2}{2(\sigma_j^h)^2} +   (\ln(\sigma_j^h) + \dfrac{\ln{(2\pi)}}{2})\sum_i R_{ij} \\\tag{25}
+
+ \\[0.1mm]
+
+ &amp;=  \dfrac{\sum_i R_{ij} (V_{ij}^h - \mu_j^h)^2}{2(\dfrac{\sum_i R_{ij} (V_{ij}^h - \mu_j^h)^2}{\sum_i R_{ij}})} +   (\ln(\sigma_j^h) + \dfrac{\ln{(2\pi)}}{2})\sum_i R_{ij} \quad \text{[By definition of } (\sigma_j^h)^2 \text{]}\\
+
+ \\[0.1mm]
+
+ &amp;= \dfrac{1}{2} \sum_i R_{ij} +  (\ln(\sigma_j^h) + \dfrac{\ln{(2\pi)}}{2})\sum_i R_{ij} \\
+
+ &amp;= (\ln(\sigma_j^h) + \dfrac{1}{2} + \dfrac{\ln{(2\pi)}}{2})\sum_i R_{ij} 
+
+ \end{align}\]
+
+    <p>This equation ends up being the standard deviation weighted by the total amount of information flowing into the capsule. We thus want to find tight agreement in the votes to minimize the standard deviation, \(\sigma_j^h\) resulting in low cost. We compute the cost as follows,</p>
+
+\[cost^h \leftarrow (\beta_u + \log(\sigma_j^h)) \sum_i R_{ij} \tag{26}\]
+
+    <p><em>Note:</em> \(\beta_u\) is a learned parameter. This offers the model more flexibility instead of directly using the other constant terms (\(\dfrac{1}{2} + \dfrac{\ln{(2\pi)}}{2}\)) in the derived equation.</p>
+
+    <p>Since we either activate the capsule or don’t, we need to define the minimum value of agreement required to activate. Another way of saying this is, we need a maximum value of cost so that exceeding this cost, we don’t activate the capsule. We do so with the following formula,</p>
+
+\[a_j \leftarrow logistic(\lambda(\beta_a - \sum_h cost^h))    \tag{27}\]
+
+    <p>This equation means that the cost of an activated capsule must be less than \(\beta_a\), where \(\beta_a\) is a learned parameter.</p>
+
+    <p>Since when we begin training our predictions will be very random, we use \(\lambda\) (an inverse temperature parameter) as a way to be less strict to capsule activations to allow gradients to flow. We increase the strictness throughout the training process as our predictions become more accurate.</p>
+
+    <p>The logistic function either activates the capsule or not depending on if its value is larger than some threshold.</p>
+
+    <div align="center">
+ <img src="https://gebob19.github.io/assets/capsule/logistic.png" alt="Logistic Function" width="500" />
+ </div>
+  </li>
+</ol>
+
+<p>And that is the \(M\) step in full detail. We compute the approximate optimal parameters of the Gaussian over the low-level capsule votes and evaluate the standard deviation of the Gaussian to decide whether or not to activate the high-level capsule.</p>
+
+<p>Next, we cover the simpler \(E\)-step. This step updates the weights \(R_{ij}\) by how well they agree with the high-level Gaussian.</p>
+
+<p>The \(E\)-step is as follows,</p>
+
+\[\forall i \in \Omega_L: \text{E-STEP}(\mu, \sigma, \textbf{a}, V, i)\]
+
+<ol>
+  <li>
+    <p>We first compute how well the votes agree under the high-level capsule.</p>
+
+\[\forall j \in \Omega_{L+1}: p_j \leftarrow \dfrac{1}{\sqrt{\prod_h 2\pi(\sigma_j^h)^2}} \exp(- \sum_h \dfrac{(V_{ij}^h - \mu_j^h)^2}{2(\sigma_j^h)^2}) \tag{28}\]
+  </li>
+  <li>
+    <p>We then compute the routing weights as \(a_jp_j\) and normalize so all routing weights from a single low-level capsule sum to one.</p>
+
+\[\forall j \in \Omega_{L+1}: R_{ij} \leftarrow \dfrac{a_jp_j}{\sum_{k \in \Omega_{L+1}} a_kp_k}\tag{29}\]
+  </li>
+</ol>
+
+<p>Notice how computing \(R_{ij}\) is the same as computing the responsibilities \(r_k^{(i)}\). We first compute \(p(x \mid z)\) as \(p_j\) and \(p(z)\) as \(a_j\) and then normalize to satisfy bayes rule. We only modify how we compute \(a_j\).</p>
+
+\[\underline{Iteration End}\]
+
+<p>At the end of the iterations, we use \(a_j\) as the presence probability and \(\mathbf{\mu_j}\) as the pose for the high-level capsule.</p>
+
+<p>And that’s Matrix Capsules with EM Routing’s algorithm! Taken from the paper, the algorithm is below.</p>
+
+<p><img src="https://gebob19.github.io/assets/capsule/emrouting.png" alt="Matrix Capsules with EM Routing Algorithm" width="700" /></p>
+
+<h2 id="recap">Recap</h2>
+
+<p>We covered EM with a mixture of Gaussian and understood how to achieve routing with such an algorithm by fitting a gaussian to the votes.</p>
+
+<p>We first covered the \(M\) step where we solve for the approximate optimal parameters of a Gaussian under the low-level capsules votes and decide whether to activate the high-level capsule depending on if there is enough agreement between the votes. We then covered the E-step, where we recompute the routing weights depending on how well the vote falls under the high-level Gaussian.</p>
+
+<h1 id="the-future-of-capsule-networks">The Future of Capsule Networks</h1>
+
+<p>Why have they not been able to achieve state of the art?</p>
+
+<p>Unfortunately, the current hardware is not optimized to run these kinds of algorithms at scale <a class="citation" href="#scaling">(Barham &amp; Isard, 2019)</a>.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>We first covered the viewpoint problem which hinders computer vision model generalization. We then investigated how CNNs and Capsule Networks approach the viewpoint variance problem. Lastly, we covered the general intuition of Capsule Networks and two different routing algorithms.</p>
+
+<p>Thanks for reading!</p>
+
+<p>Let me know what you think about the post below!</p>
+
+<p>If you want more content? Follow me on <a href="https://twitter.com/brennangebotys">Twitter</a>!</p>
+
+<h1 id="references">References</h1>
+
+<ol class="bibliography"><li><span id="NIPS1989_293">LeCun, Y., Boser, B. E., Denker, J. S., Henderson, D., Howard, R. E., Hubbard, W. E., &amp; Jackel, L. D. (1990). Handwritten Digit Recognition with a Back-Propagation Network. In D. S. Touretzky (Ed.), <i>Advances in Neural Information Processing Systems 2</i> (pp. 396–404). Morgan-Kaufmann. http://papers.nips.cc/paper/293-handwritten-digit-recognition-with-a-back-propagation-network.pdf</span></li>
+<li><span id="tae">Hinton, G. E., Krizhevsky, A., &amp; Wang, S. D. (2011). <i>Transforming Auto-Encoders</i>.</span></li>
+<li><span id="drbc">Sabour, S., Frosst, N., &amp; Hinton, G. E. (2017). <i>Dynamic Routing Between Capsules</i>.</span></li>
+<li><span id="mcwer">Hinton, G. E., Sabour, S., &amp; Frosst, N. (2018). <i>Matrix Capsules With EM Routing</i>.</span></li>
+<li><span id="visandunderstandingcnns">Zeiler, M. D., &amp; Fergus, R. (2013). <i>Visualizing and Understanding Convolutional Networks</i>.</span></li>
+<li><span id="mp">Riesenhuber, M., &amp; Poggio, T. (1999). <i>Hierarchical models of object recognition in cortex</i>.</span></li>
+<li><span id="scaling">Barham, P., &amp; Isard, M. (2019). <i>Machine Learning Systems are Stuck in a Rut</i>.</span></li></ol>
+
+<h2 id="more-resources">More Resources</h2>
+
+<ul>
+  <li>
+    <p>Dynamic Routing Capsule Network Video Tutorial: <a href="https://www.youtube.com/watch?v=pPN8d0E3900">https://www.youtube.com/watch?v=pPN8d0E3900</a></p>
+  </li>
+  <li>
+    <p>Geoffrey Hinton Capsule Network Talk (2019): <a href="https://www.youtube.com/watch?v=x5Vxk9twXlE">https://www.youtube.com/watch?v=x5Vxk9twXlE</a></p>
+  </li>
+  <li>
+    <p>EM Routing Blog Post with TF Code: <a href="https://jhui.github.io/2017/11/14/Matrix-Capsules-with-EM-routing-Capsule-Network/">https://jhui.github.io/2017/11/14/Matrix-Capsules-with-EM-routing-Capsule-Network/</a></p>
+  </li>
+  <li>
+    <p>Gaussian Mixture Models in PyTorch Blog Post: <a href="https://angusturner.github.io/generative_models/2017/11/03/pytorch-gaussian-mixture-model.html">https://angusturner.github.io/generative_models/2017/11/03/pytorch-gaussian-mixture-model.html</a></p>
+  </li>
+</ul>
+
+  </section>
+</article>
+
+
+            
+    <section class="footer">
+    <footer>
+        <div class = "footer_div">  
+        <nav class="cover-navigation navigation--social">
+          <ul class="navigation">
+
+          
+
+          
+          <!-- Github -->
+          <li class="navigation__item_social">
+            <a href="https://github.com/gebob19" title="@gebob19 的 Github" target="_blank">
+              <i class='social fa fa-github fa-2x'></i>
+              <span class="label">Github</span>
+            </a>
+          </li>
+          
+          
+          
+          <!-- Twitter -->
+          <li class="navigation__item_social">
+            <a href="http://twitter.com/brennangebotys" title="@brennangebotys" target="_blank">
+              <i class='social fa fa-twitter fa-2x'></i>
+              <span class="label">Twitter</span>
+            </a>
+          </li>
+          
+
+          
+
+          <!-- RSS
+          <li class="navigation__item_social">
+            <a href="/feed.xml" rel="author" title="RSS" target="_blank">
+              <i class='social fa fa-rss fa-2x'></i>
+              <span class="label">RSS</span>
+            </a>
+          </li> -->
+
+          
+
+          </ul>
+        </nav>
+
+        </div>
+
+
+
+        <div class = "footer_div">  
+           <p class="copyright text-muted">
+            Copyright &copy; Brennan Gebotys 2017-2021 Theme by <a href="https://robotkang.cc/">Robotkang</a>
+            <!--<iframe
+                style="margin-left: 2px; margin-bottom:-5px;"
+                frameborder="0" scrolling="0" width="91px" height="20px"
+                src="https://ghbtns.com/github-btn.html?user=MengZheK&repo=BlogDemo&type=star&count=true" >
+            </iframe>|-->
+            
+<!-- cnzz -->
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1261874359'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s95.cnzz.com/z_stat.php%3Fid%3D1261874359%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+
+
+<!-- cc -->
+      	
+
+<!-- 访问统计 -->
+
+<div align="right">
+    			
+<link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+<!--  
+Total <span id="busuanzi_value_site_pv"></span> views.  
+您是我的第<span id="busuanzi_value_site_uv"></span> 个访客..
+<span id="busuanzi_value_page_pv"></span> Hits
+  
+          </span>
+        </div>
+        <div>
+    </footer>
+</section>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script> -->
+
+
+
+
+
+        </div>
+    
+
+    </div>
+    
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
+
+<script type="text/javascript" src="/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+    
+
+<!--博客鼠标点击显示文字JS特效代码 -->
+
+
+<link rel="stylesheet" href="/assets/katex/katex.min.css">
+<script defer src="/assets/katex/katex.min.js"></script>
+<script defer src="/assets/katex/contrib/mathtex-script-type.min.js"></script>
+
+
+<script type="text/javascript">
+
+// var a_idx = 0;
+// jQuery(document).ready(function($) {
+//  $("body").click(function(e) {
+//  var a = new Array("Woo", "Woot", "Beep", "Boop", "Great", "Fantastic", "Awesome");
+//  var $i = $("<span/>").text(a[a_idx]);
+//  a_idx = (a_idx + 1) % a.length;
+//  var x = e.pageX,
+//  y = e.pageY;
+//  $i.css({
+//  "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+//  "top": y - 20,
+//  "left": x,
+//  "position": "absolute",
+//  "font-weight": "bold",
+// //  "color": "#ff6651"
+//  "color": "#3795E5"
+//  });
+//  $("body").append($i);
+//  $i.animate({
+//  "top": y - 180,
+//  "opacity": 0
+//  },
+//  1500,
+//  function() {
+//  $i.remove();
+//  });
+//  });
+// });
+// </script>
+
+
+
+</body>
+
+</html>

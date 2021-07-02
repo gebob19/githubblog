@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+  <title>Generative Models: Recursive Edition</title>
+  <meta name="description" content="Generative Adversarial Networks (GANs) have shown great results in computer vision but how do they perform when applied to time-series data? Following this, ...">
+  <meta name="author" content="robotkang">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Generative Models: Recursive Edition">
+  <meta name="twitter:description" content="Generative Adversarial Networks (GANs) have shown great results in computer vision but how do they perform when applied to time-series data? Following this, ...">
+  
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Generative Models: Recursive Edition">
+  <meta property="og:description" content="Generative Adversarial Networks (GANs) have shown great results in computer vision but how do they perform when applied to time-series data? Following this, ...">
+  
+  <link rel="icon" type="image/png" href="/images/favicon.png" />
+  <link href="/images/favicon.png" rel="shortcut icon" type="image/png">
+  
+  <link rel="stylesheet" href="/css/main.css">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="canonical" href="/20723.html">
+  <link rel="alternate" type="application/rss+xml" title="Brennan Gebotys" href="/feed.xml">
+  
+  <!-- <meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" />
+   -->
+<!-- 自动将http的不安全请求升级为https -->
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
+<!-- 修正文章访问量统计、20201009 -->
+  <meta name="referrer" content="no-referrer-when-downgrade">
+
+<!-- Valine Comment -->
+    
+
+<!-- google ads -->
+    <!-- <script data-ad-client="ca-pub-7648908799310520" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> -->
+
+</head>
+
+
+  <body style="height:1000px;">
+
+    <span class="mobile btn-mobile-menu">        
+      <div class="nav_container">
+         <nav class="nav-menu-item" style = "float:right">
+            <i class="nav-menu-item">
+              <a href="/#blog" title="" class="blog-button">  Blog
+              </a>
+            </i>
+            
+                <i class="nav-menu-item">
+
+                  <a href="/about" title="about" class="btn-mobile-menu__icon">
+                      About
+                  </a>
+                </i>
+            
+          </nav>
+      </div>
+    </span>
+
+
+    <header class="panel-cover panel-cover--collapsed">
+<style type="text/css">
+
+/* body {background-image:url(http://omjh2j5h3.bkt.clouddn.com/background.png);} */
+
+p.flower {background-image: url(http://omjh2j5h3.bkt.clouddn.com/background-cover.jpg); padding: 20px;}
+</style>
+  
+  <div class="panel-main">
+
+    <div class="panel-main__inner panel-inverted">
+    <div class="panel-main__content">
+        <!-- 头像效果-start -->
+        <div class="ih-item circle effect right_to_left">            
+            <!-- <a href="/#blog" title="Brennan Gebotys" class="blog-button"> -->
+            <a href="/" title="Brennan Gebotys" class="blog-button">
+                <div class="img"><img src="/images/avatar.jpg" alt="img"></div>
+                <div class="info">
+                    <div class="info-back">
+                        <h1> 
+                            
+                                Brennan
+                            
+                        </h1>
+                        <p>
+                           
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- 头像效果-end -->
+        <h1 class="panel-cover__title panel-title"><a href="/#blog" title="link to homepage for Brennan Gebotys" class="blog-button">Brennan Gebotys</a></h1>
+        
+        <span class="panel-cover__subtitle panel-subtitle">Welcome!</span>
+        
+        <hr class="panel-cover__divider" style="height:1px;border:none;border-top:1px solid #555555;"/>
+        <p class="panel-cover__description">Machine Learning, Statistics, and All Things Cool</p>
+        <hr class="panel-cover__divider panel-cover__divider--secondary" style="height:1px;border:none;border-top:1px solid #555555;"/>
+        
+        
+        
+
+        <div class="navigation-wrapper">
+          <div>
+            <nav class="cover-navigation cover-navigation--primary">
+              <ul class="navigation">
+                <li class="navigation__item"><a href="/#blog" title="" class="blog-button">Blog</a></li>
+                
+                  <li class="navigation__item"><a href="/about" title="about">About</a></li>
+                
+              </ul>
+            </nav>
+          </div>          
+        </div>
+
+
+        </div>
+      </div>
+    </div>
+    
+    
+    <div class="panel-cover--overlay cover-disabled"></div>
+    
+  </div>
+</header>
+
+
+    <div class="content-wrapper">
+        <div class="content-wrapper__inner">
+            <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- latex公式支持代码 end -->
+
+<!-- 代码高亮设置 begin 
+<link rel="stylesheet" href="/css/pygments-default.css">
+ 代码高亮设置 end -->
+
+
+<article class="post-container post-container--single" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title">Generative Models: Recursive Edition</h1>
+    <div class="post-meta" style="color:#C3C3C3;border-bottom-width: 1px;border-bottom-style: dashed;padding-bottom: 0px;padding-top: 5px;">
+      <!-- <img src="/images/calendar.png" width="20px" style="vertical-align:text-top;"/>  -->
+      <time datetime="2020-07-23 00:00:00 -0400" itemprop="datePublished" class="post-meta__date date">2020-07-23</time>  
+         
+     <!-- <span id="busuanzi_container_page_pv">
+  	 阅读：<span id="busuanzi_value_page_pv"></span>次 -->
+	 <!-- </span> -->
+    </p>
+    </div>
+  </header>
+
+  <section class="post">
+
+    <p>Generative Adversarial Networks (GANs) have shown great results in computer vision but how do they perform when applied to time-series data? Following this, do Convolutional Neural Networks (CNNs) or do Recursive Neural Networks (RNNs) achieve the best results?</p>
+
+<p>In this post, we discuss GAN implementations which aim to generate time-series data including, C-RNN-GANs <a class="citation" href="#mogren2016c">(Mogren, 2016)</a>, RC-GANs <a class="citation" href="#esteban2017real">(Esteban et al., 2017)</a> and TimeGANs <a class="citation" href="#yoon2019time">(Yoon et al., 2019)</a>. Lastly, we implement RC-GAN and generate stock data.</p>
+
+<h1 id="basic-gan-intro">Basic GAN Intro</h1>
+
+<p>There are many great resources on GANs so I only provide an introduction here.</p>
+
+<p>GANs include a generator and a discriminator. The generator takes latent variables as input (usually values sampled from a normal distribution) and outputs generated data. The discriminator takes the data (real or generated/fake) as input and learns to discriminate between the two.</p>
+
+<p>The gradients of the discriminator are used both to improve the discriminator and improve the generator.</p>
+
+<p>Here’s a nice picture for the more visually inclined from a wonderful <a href="https://robotronblog.com/2017/09/05/gans/">blog</a>.</p>
+
+<div align="center">
+<img src="https://robotronblog.files.wordpress.com/2017/09/g1.jpg" alt="GAN-description" width="600" class="center" />
+</div>
+
+<p>and a nice equation for the more equation-y inclined where \(D\) is the discriminator and \(G\) is the generator.</p>
+
+\[\min_G \max_D \mathbb{E}_{x\sim p_{data}(x)}[\log D(x)] + \mathbb{E}_{z\sim p_z(z)}[\log(1 - D(G(z)))]\]
+
+<h1 id="c-rnn-gan">C-RNN-GAN</h1>
+
+<p>The first paper we investigate is ‘Continuous recurrent neural networks with adversarial training’ (C-RNN-GAN) <a class="citation" href="#mogren2016c">(Mogren, 2016)</a>.</p>
+
+<p>The generative model takes a latent variable concatenated with the previous output as input. Data is then generated using an RNN and a fully connected layer.</p>
+
+<!-- <div align="center">
+<img src="https://gebob19.github.io/assets/recursive_gan/c-rnn.png" alt="C-RNN-GAN" width="600" class="center"/>
+</div> -->
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/c-rnn6.png" alt="C-RNN-GAN" class="center" />
+</div>
+
+<p>Note: In the paper, <code class="language-plaintext highlighter-rouge">start</code> is initialized from Uniform [-1, 1].</p>
+
+<p>The discriminator is a bi-directional RNN followed by a fully connected layer.</p>
+
+<p>The generator is implemented in PyTorch as follows,</p>
+
+<script src="https://gist.github.com/gebob19/b379123b493fb5db035d93c171947e0b.js"></script>
+
+<h1 id="rc-gan">RC-GAN</h1>
+
+<p>The next paper is ‘Real-Valued (Medical) Time Series Generation With Recurrent Conditional GANs’ <a class="citation" href="#esteban2017real">(Esteban et al., 2017)</a>.</p>
+
+<p>RC-GAN’s generator’s input consists of a sequence of latent variables.</p>
+
+<p>The paper also introduces a ‘conditional’ GAN, where conditional/static information (\(c\)) is concatenated to the latent variables and used as input to improve training.</p>
+
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/cr-gan.png" alt="CR-GAN" class="center" />
+</div>
+
+<p>The discriminator is the same as in C-RNN-GAN but is not bi-directional.</p>
+
+<p>The implementation is as follows,</p>
+
+<script src="https://gist.github.com/gebob19/bcbe223c0ae39412ebe93a6fe8c23048.js"></script>
+
+<h1 id="time-gan">Time-GAN</h1>
+
+<p>TimeGan <a class="citation" href="#yoon2019time">(Yoon et al., 2019)</a> is the most recent approach, which aims to maximize the similarities between embeddings of real data and fake data.</p>
+
+<p>First, the generator (\(G\)) creates embeddings (\(\hat{h_t} = G(\hat{h_{t-1}}, z_t)\)) from latent variables while the embedding network (\(E\)) encodes real data (\(h_t = E(h_{t-1}, x_t)\)). The Discriminator (\(D\)) then discriminates between real and fake embeddings. While the Recovery network (\(R\)) reconstructs the real data (creating \(\hat{x_t}\)) from its respective embedding.</p>
+
+<p>This leads to 3 losses</p>
+
+<ul>
+  <li>Embedding difference (Goal: Similar embeddings for real and fake data)</li>
+</ul>
+
+\[L_S = \mathbb{E}_{x_{1:T} \sim p} \sum_t || h_t - G(h_{t-1}, z_t) ||\]
+
+<p>Notice: \(G\) takes \(h_{t-1}\) as input, NOT \(\hat{h_{t-1}}\)</p>
+
+<ul>
+  <li>Recovery Score (Goal: meaningful embeddings for real data)</li>
+</ul>
+
+\[L_R = \mathbb{E}_{x_{1:T} \sim p} \sum_t ||x_t - \tilde{x_t} ||\]
+
+<ul>
+  <li>Discriminator Score</li>
+</ul>
+
+\[L_U = \mathbb{E}_{x_{1:T} \sim p} \sum_t log(y_t) +  \mathbb{E}_{x_{1:T} \sim \hat{p}} \sum_t log(1 - \hat{y_t})\]
+
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/timegan2.png" alt="Time-GAN" class="center" />
+</div>
+
+<p>Note: Similar to the previous paper, the paper talks about static/context features which can be used throughout the training process (E.g the label (1, 2, …, 9) when generating the MNIST dataset). To simplify this post, I chose to sweep this little detail under the blogpost rug.</p>
+
+<p>To complete the optimization, the total loss is weighed by two hyperparameters \(\lambda\) and \(\eta\) (whos values were found to be non-significant). Leading to the following…</p>
+
+\[\min_{E, R} \lambda L_S + L_R\]
+
+\[\min_{G} \eta L_S + \max_{D} L_U\]
+
+<h2 id="empirical-results">Empirical Results</h2>
+
+<p>Below are the results comparing time-series focused, generative models. We can see that TimeGAN performs the best across all datasets with RC-GAN close behind. For a more detailed explanation of the data, refer to the paper.</p>
+
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/results.png" alt="table results from TimeGAN" class="center" width="400" height="100" />
+</div>
+
+<h1 id="rc-gan--stock-data">RC-GAN + Stock Data</h1>
+
+<p>Since both RC-GAN and TimeGAN show similar results and RC-GAN is a much simpler approach we will implement and investigate RC-GAN.</p>
+
+<h3 id="generator-and-discriminator">Generator and Discriminator</h3>
+
+<script src="https://gist.github.com/gebob19/201691dca85d9e766a9b5b896824dc44.js"></script>
+
+<h3 id="training-loop">Training Loop</h3>
+
+<script src="https://gist.github.com/gebob19/4f95f82c80f8ff7f1122c5897a6db877.js"></script>
+
+<h2 id="visualizing-stock-data">Visualizing Stock Data</h2>
+
+<p>Before we generate stock data, we need to understand how stock data is visualized.</p>
+
+<p>Every day, the price which the stock opened and closed at, and the highest and lowest price the stock reached that day is represented using a candlestick.</p>
+
+<p>If the stock closed higher than it opened, the candle is filled green. If the stock closed lower than it opened, then the candle is filled red.</p>
+
+<p>Nice!</p>
+
+<div align="center" width="600" height="300">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/candlesticks.jpg" alt="candlestick_model" class="center" width="600" height="300" />
+</div>
+
+<h3 id="examples">Examples</h3>
+
+<p>The model was trained with the GOOGLE price data split into 30-day parts (used in the TimeGAN paper).</p>
+
+<p>Below are some generated data along with low-dimension analysis using T-SNE.</p>
+
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/ex/s1.png" alt="examples" class="center" width="400" height="100" />
+</div>
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/ex/s2.png" alt="examples" class="center" width="400" height="100" />
+</div>
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/ex/s3.png" alt="examples" class="center" width="400" height="100" />
+</div>
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/ex/tsne.png" alt="examples" class="center" width="400" height="100" />
+</div>
+
+<p>Though it looks that the examples overlap through a T-SNE visualization, they do not always look realistic.</p>
+
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/ex/s4.png" alt="tsne-overlap" class="center" width="400" height="100" />
+</div>
+
+<h2 id="feature-association">Feature Association</h2>
+
+<p>We can also investigate what the learned features associate with by shifting the axis values around in latent space. Since we trained our model with a \(z\) dimension of 10 we can shift the value of each of these dimensions and see how it changes the generated stock data.</p>
+
+<h3 id="original-generated-data">[Original Generated Data]</h3>
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/og.png" alt="original-data" class="center" width="700" height="200" />
+</div>
+
+<h2 id="shifting-noise-axis-values--1--05-05-1">Shifting Noise Axis Values [-1, -0.5, +0.5, +1]</h2>
+
+<h3 id="index-0">Index 0</h3>
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features0.png" alt="feature" class="center" width="700" height="200" />
+</div>
+
+<h3 id="index-1">Index 1</h3>
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features1.png" alt="feature" class="center" width="700" height="200" />
+</div>
+
+<h3 id="index-2">Index 2</h3>
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features2.png" alt="feature" class="center" width="700" height="200" />
+</div>
+
+<h3 id="index-3">Index 3</h3>
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features3.png" alt="feature" class="center" width="700" height="200" />
+</div>
+
+<h3 id="index-4">Index 4</h3>
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features4.png" alt="feature" class="center" width="700" height="200" />
+</div>
+
+<h3 id="index-5">Index 5</h3>
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features5.png" alt="feature" class="center" width="700" height="200" />
+</div>
+
+<h3 id="index-6">Index 6</h3>
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features6.png" alt="feature" class="center" width="700" height="200" />
+</div>
+
+<h3 id="index-7">Index 7</h3>
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features7.png" alt="feature" class="center" width="700" height="200" />
+</div>
+
+<h3 id="index-8">Index 8</h3>
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features8.png" alt="feature" class="center" width="700" height="200" />
+</div>
+
+<h3 id="index-9">Index 9</h3>
+<div align="center" width="500" height="100">
+<img src="https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features9.png" alt="feature" class="center" width="700" height="200" />
+</div>
+
+<p>There is also a <a href="https://github.com/gebob19/RNN_stock_generation">notebook</a> which contains all the code needed to test this out for yourself!</p>
+
+<p>If you enjoyed the post, feel free to follow me on <a href="https://twitter.com/brennangebotys">Twitter</a> for updates on new posts!</p>
+
+<h1 id="references">References</h1>
+
+<ol class="bibliography"><li><span id="mogren2016c">Mogren, O. (2016). C-RNN-GAN: Continuous recurrent neural networks with adversarial training. <i>ArXiv Preprint ArXiv:1611.09904</i>.</span></li>
+<li><span id="esteban2017real">Esteban, C., Hyland, S. L., &amp; Rätsch, G. (2017). Real-valued (medical) time series generation with recurrent conditional gans. <i>ArXiv Preprint ArXiv:1706.02633</i>.</span></li>
+<li><span id="yoon2019time">Yoon, J., Jarrett, D., &amp; van der Schaar, M. (2019). Time-series generative adversarial networks. <i>Advances in Neural Information Processing Systems</i>, 5508–5518.</span></li></ol>
+
+  </section>
+</article>
+
+
+            
+    <section class="footer">
+    <footer>
+        <div class = "footer_div">  
+        <nav class="cover-navigation navigation--social">
+          <ul class="navigation">
+
+          
+
+          
+          <!-- Github -->
+          <li class="navigation__item_social">
+            <a href="https://github.com/gebob19" title="@gebob19 的 Github" target="_blank">
+              <i class='social fa fa-github fa-2x'></i>
+              <span class="label">Github</span>
+            </a>
+          </li>
+          
+          
+          
+          <!-- Twitter -->
+          <li class="navigation__item_social">
+            <a href="http://twitter.com/brennangebotys" title="@brennangebotys" target="_blank">
+              <i class='social fa fa-twitter fa-2x'></i>
+              <span class="label">Twitter</span>
+            </a>
+          </li>
+          
+
+          
+
+          <!-- RSS
+          <li class="navigation__item_social">
+            <a href="/feed.xml" rel="author" title="RSS" target="_blank">
+              <i class='social fa fa-rss fa-2x'></i>
+              <span class="label">RSS</span>
+            </a>
+          </li> -->
+
+          
+
+          </ul>
+        </nav>
+
+        </div>
+
+
+
+        <div class = "footer_div">  
+           <p class="copyright text-muted">
+            Copyright &copy; Brennan Gebotys 2017-2021 Theme by <a href="https://robotkang.cc/">Robotkang</a>
+            <!--<iframe
+                style="margin-left: 2px; margin-bottom:-5px;"
+                frameborder="0" scrolling="0" width="91px" height="20px"
+                src="https://ghbtns.com/github-btn.html?user=MengZheK&repo=BlogDemo&type=star&count=true" >
+            </iframe>|-->
+            
+<!-- cnzz -->
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1261874359'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s95.cnzz.com/z_stat.php%3Fid%3D1261874359%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+
+
+<!-- cc -->
+      	
+
+<!-- 访问统计 -->
+
+<div align="right">
+    			
+<link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+<!--  
+Total <span id="busuanzi_value_site_pv"></span> views.  
+您是我的第<span id="busuanzi_value_site_uv"></span> 个访客..
+<span id="busuanzi_value_page_pv"></span> Hits
+  
+          </span>
+        </div>
+        <div>
+    </footer>
+</section>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script> -->
+
+
+
+
+
+        </div>
+    
+
+    </div>
+    
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
+
+<script type="text/javascript" src="/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+    
+
+<!--博客鼠标点击显示文字JS特效代码 -->
+
+
+<link rel="stylesheet" href="/assets/katex/katex.min.css">
+<script defer src="/assets/katex/katex.min.js"></script>
+<script defer src="/assets/katex/contrib/mathtex-script-type.min.js"></script>
+
+
+<script type="text/javascript">
+
+// var a_idx = 0;
+// jQuery(document).ready(function($) {
+//  $("body").click(function(e) {
+//  var a = new Array("Woo", "Woot", "Beep", "Boop", "Great", "Fantastic", "Awesome");
+//  var $i = $("<span/>").text(a[a_idx]);
+//  a_idx = (a_idx + 1) % a.length;
+//  var x = e.pageX,
+//  y = e.pageY;
+//  $i.css({
+//  "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+//  "top": y - 20,
+//  "left": x,
+//  "position": "absolute",
+//  "font-weight": "bold",
+// //  "color": "#ff6651"
+//  "color": "#3795E5"
+//  });
+//  $("body").append($i);
+//  $i.animate({
+//  "top": y - 180,
+//  "opacity": 0
+//  },
+//  1500,
+//  function() {
+//  $i.remove();
+//  });
+//  });
+// });
+// </script>
+
+
+
+</body>
+
+</html>

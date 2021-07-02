@@ -1,0 +1,1300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Brennan Gebotys</title>
+    <description>Machine Learning, Statistics, and All Things Cool</description>
+    <link>/</link>
+    <atom:link href="/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Fri, 02 Jul 2021 08:56:24 -0400</pubDate>
+    <lastBuildDate>Fri, 02 Jul 2021 08:56:24 -0400</lastBuildDate>
+    <generator>Jekyll v3.9.0</generator>
+    
+      <item>
+        <title>Video TFRecords: How to Efficiently Load Video Data</title>
+        <description>&lt;p&gt;Compared to images, loading video data is expensive due to the I/O bottleneck and increased decoding time. This reduces efficiency leading to significantly longer training times. Reading online, there are generally two solutions for data loading videos:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Decode the video and save its matrix as is&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;With this approach, we improve the speed by preprocessing the decoding; however, we aren’t compressing, so storing a few videos which total a couple MBs ends up requiring a few GBs; not very memory efficient.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Store the frames of the video as images using a folder filesystem&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;With this approach, the I/O limitations are reduced by reading the images directly and we take advantage of compression algorithms like JPEG. However, it would also require a large folder re-organization which isn’t optimal.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The solution I came up with and will share with you is to store the video as a list of encoded images using TFRecords. This significantly improves data loading throughput (by at least 2x) without incurring large memory costs (maintains the same size).&lt;/p&gt;
+
+&lt;h1 id=&quot;setup&quot;&gt;Setup&lt;/h1&gt;
+
+&lt;h3 id=&quot;software&quot;&gt;Software&lt;/h3&gt;
+
+&lt;p&gt;This code is written in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Tensorflow 1.15.0&lt;/code&gt;; it should also work with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Tensorflow 2&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;data-format&quot;&gt;Data format&lt;/h3&gt;
+
+&lt;p&gt;For this tutorial we need a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.txt&lt;/code&gt; file for train, validation and test which is formatted like the following:&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;{mp4 file path} {label}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;For example, one line would look like:&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;videos/54838.mp4 1951
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;creating-the-tfrecords&quot;&gt;Creating the TFRecords&lt;/h1&gt;
+
+&lt;p&gt;First, we look at how we create a TFRecord example from a video example.&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/gebob19/4c4bcc6c04f5fb329e8d3b7570c84d4b.js&quot;&gt;&lt;/script&gt;
+
+&lt;p&gt;Then we loop through our dataset and save each example into a TFRecord.&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/gebob19/47b2e4be6c486f0e0caa7b62fcc9bd86.js&quot;&gt;&lt;/script&gt;
+
+&lt;h1 id=&quot;reading-the-tfrecord&quot;&gt;Reading the TFRecord&lt;/h1&gt;
+
+&lt;p&gt;The most difficult part was figuring out how to decode the sequential frame data.&lt;/p&gt;
+
+&lt;p&gt;With simple solutions not working, being unable to find online resources and on top of it all working in mysterious bytes I created the solution through brute force. The result was a magical TensorFlow while loop.&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/gebob19/d4b14798a7dce32e7c684f261d4662bf.js&quot;&gt;&lt;/script&gt;
+
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;That’s it! Now you know how to encode and decode video data efficiently using TFRecords, happy hacking! :)&lt;/p&gt;
+
+&lt;p&gt;A repo containing the full code can be found &lt;a href=&quot;https://github.com/gebob19/TFRecords_4_videos&quot;&gt;here&lt;/a&gt;!&lt;/p&gt;
+
+&lt;p&gt;If you enjoyed this post, you may enjoy my other posts! If you want to stay up to date you can find me on my &lt;a href=&quot;https://github.com/gebob19&quot;&gt;Github&lt;/a&gt; or &lt;a href=&quot;https://twitter.com/brennangebotys&quot;&gt;Twitter&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;why-i-made-this&quot;&gt;Why I made this&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;Difficult to find resources which are compatible with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Tensorflow 1.15.0&lt;/code&gt; (mostly because &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Tensorflow 2.0&lt;/code&gt; is out)&lt;/li&gt;
+  &lt;li&gt;Lack of quality resources on how to use TFRecords with video data&lt;/li&gt;
+  &lt;li&gt;Imo this is the best way to data load video data using Tensorflow&lt;/li&gt;
+  &lt;li&gt;With video processing being such a cool field I’m sure many others will find this information useful in future research!&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Mon, 16 Nov 2020 00:00:00 -0500</pubDate>
+        <link>/201116.html</link>
+        <guid isPermaLink="true">/201116.html</guid>
+        
+        
+        <category>examples</category>
+        
+      </item>
+    
+      <item>
+        <title>Generative Models: Recursive Edition</title>
+        <description>&lt;p&gt;Generative Adversarial Networks (GANs) have shown great results in computer vision but how do they perform when applied to time-series data? Following this, do Convolutional Neural Networks (CNNs) or do Recursive Neural Networks (RNNs) achieve the best results?&lt;/p&gt;
+
+&lt;p&gt;In this post, we discuss GAN implementations which aim to generate time-series data including, C-RNN-GANs &lt;a class=&quot;citation&quot; href=&quot;#mogren2016c&quot;&gt;(Mogren, 2016)&lt;/a&gt;, RC-GANs &lt;a class=&quot;citation&quot; href=&quot;#esteban2017real&quot;&gt;(Esteban et al., 2017)&lt;/a&gt; and TimeGANs &lt;a class=&quot;citation&quot; href=&quot;#yoon2019time&quot;&gt;(Yoon et al., 2019)&lt;/a&gt;. Lastly, we implement RC-GAN and generate stock data.&lt;/p&gt;
+
+&lt;h1 id=&quot;basic-gan-intro&quot;&gt;Basic GAN Intro&lt;/h1&gt;
+
+&lt;p&gt;There are many great resources on GANs so I only provide an introduction here.&lt;/p&gt;
+
+&lt;p&gt;GANs include a generator and a discriminator. The generator takes latent variables as input (usually values sampled from a normal distribution) and outputs generated data. The discriminator takes the data (real or generated/fake) as input and learns to discriminate between the two.&lt;/p&gt;
+
+&lt;p&gt;The gradients of the discriminator are used both to improve the discriminator and improve the generator.&lt;/p&gt;
+
+&lt;p&gt;Here’s a nice picture for the more visually inclined from a wonderful &lt;a href=&quot;https://robotronblog.com/2017/09/05/gans/&quot;&gt;blog&lt;/a&gt;.&lt;/p&gt;
+
+&lt;div align=&quot;center&quot;&gt;
+&lt;img src=&quot;https://robotronblog.files.wordpress.com/2017/09/g1.jpg&quot; alt=&quot;GAN-description&quot; width=&quot;600&quot; class=&quot;center&quot; /&gt;
+&lt;/div&gt;
+
+&lt;p&gt;and a nice equation for the more equation-y inclined where \(D\) is the discriminator and \(G\) is the generator.&lt;/p&gt;
+
+\[\min_G \max_D \mathbb{E}_{x\sim p_{data}(x)}[\log D(x)] + \mathbb{E}_{z\sim p_z(z)}[\log(1 - D(G(z)))]\]
+
+&lt;h1 id=&quot;c-rnn-gan&quot;&gt;C-RNN-GAN&lt;/h1&gt;
+
+&lt;p&gt;The first paper we investigate is ‘Continuous recurrent neural networks with adversarial training’ (C-RNN-GAN) &lt;a class=&quot;citation&quot; href=&quot;#mogren2016c&quot;&gt;(Mogren, 2016)&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The generative model takes a latent variable concatenated with the previous output as input. Data is then generated using an RNN and a fully connected layer.&lt;/p&gt;
+
+&lt;!-- &lt;div align=&quot;center&quot;&gt;
+&lt;img src=&quot;https://gebob19.github.io/assets/recursive_gan/c-rnn.png&quot; alt=&quot;C-RNN-GAN&quot; width=&quot;600&quot; class=&quot;center&quot;/&gt;
+&lt;/div&gt; --&gt;
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/c-rnn6.png&quot; alt=&quot;C-RNN-GAN&quot; class=&quot;center&quot; /&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Note: In the paper, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;start&lt;/code&gt; is initialized from Uniform [-1, 1].&lt;/p&gt;
+
+&lt;p&gt;The discriminator is a bi-directional RNN followed by a fully connected layer.&lt;/p&gt;
+
+&lt;p&gt;The generator is implemented in PyTorch as follows,&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/gebob19/b379123b493fb5db035d93c171947e0b.js&quot;&gt;&lt;/script&gt;
+
+&lt;h1 id=&quot;rc-gan&quot;&gt;RC-GAN&lt;/h1&gt;
+
+&lt;p&gt;The next paper is ‘Real-Valued (Medical) Time Series Generation With Recurrent Conditional GANs’ &lt;a class=&quot;citation&quot; href=&quot;#esteban2017real&quot;&gt;(Esteban et al., 2017)&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;RC-GAN’s generator’s input consists of a sequence of latent variables.&lt;/p&gt;
+
+&lt;p&gt;The paper also introduces a ‘conditional’ GAN, where conditional/static information (\(c\)) is concatenated to the latent variables and used as input to improve training.&lt;/p&gt;
+
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/cr-gan.png&quot; alt=&quot;CR-GAN&quot; class=&quot;center&quot; /&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The discriminator is the same as in C-RNN-GAN but is not bi-directional.&lt;/p&gt;
+
+&lt;p&gt;The implementation is as follows,&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/gebob19/bcbe223c0ae39412ebe93a6fe8c23048.js&quot;&gt;&lt;/script&gt;
+
+&lt;h1 id=&quot;time-gan&quot;&gt;Time-GAN&lt;/h1&gt;
+
+&lt;p&gt;TimeGan &lt;a class=&quot;citation&quot; href=&quot;#yoon2019time&quot;&gt;(Yoon et al., 2019)&lt;/a&gt; is the most recent approach, which aims to maximize the similarities between embeddings of real data and fake data.&lt;/p&gt;
+
+&lt;p&gt;First, the generator (\(G\)) creates embeddings (\(\hat{h_t} = G(\hat{h_{t-1}}, z_t)\)) from latent variables while the embedding network (\(E\)) encodes real data (\(h_t = E(h_{t-1}, x_t)\)). The Discriminator (\(D\)) then discriminates between real and fake embeddings. While the Recovery network (\(R\)) reconstructs the real data (creating \(\hat{x_t}\)) from its respective embedding.&lt;/p&gt;
+
+&lt;p&gt;This leads to 3 losses&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Embedding difference (Goal: Similar embeddings for real and fake data)&lt;/li&gt;
+&lt;/ul&gt;
+
+\[L_S = \mathbb{E}_{x_{1:T} \sim p} \sum_t || h_t - G(h_{t-1}, z_t) ||\]
+
+&lt;p&gt;Notice: \(G\) takes \(h_{t-1}\) as input, NOT \(\hat{h_{t-1}}\)&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Recovery Score (Goal: meaningful embeddings for real data)&lt;/li&gt;
+&lt;/ul&gt;
+
+\[L_R = \mathbb{E}_{x_{1:T} \sim p} \sum_t ||x_t - \tilde{x_t} ||\]
+
+&lt;ul&gt;
+  &lt;li&gt;Discriminator Score&lt;/li&gt;
+&lt;/ul&gt;
+
+\[L_U = \mathbb{E}_{x_{1:T} \sim p} \sum_t log(y_t) +  \mathbb{E}_{x_{1:T} \sim \hat{p}} \sum_t log(1 - \hat{y_t})\]
+
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/timegan2.png&quot; alt=&quot;Time-GAN&quot; class=&quot;center&quot; /&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Note: Similar to the previous paper, the paper talks about static/context features which can be used throughout the training process (E.g the label (1, 2, …, 9) when generating the MNIST dataset). To simplify this post, I chose to sweep this little detail under the blogpost rug.&lt;/p&gt;
+
+&lt;p&gt;To complete the optimization, the total loss is weighed by two hyperparameters \(\lambda\) and \(\eta\) (whos values were found to be non-significant). Leading to the following…&lt;/p&gt;
+
+\[\min_{E, R} \lambda L_S + L_R\]
+
+\[\min_{G} \eta L_S + \max_{D} L_U\]
+
+&lt;h2 id=&quot;empirical-results&quot;&gt;Empirical Results&lt;/h2&gt;
+
+&lt;p&gt;Below are the results comparing time-series focused, generative models. We can see that TimeGAN performs the best across all datasets with RC-GAN close behind. For a more detailed explanation of the data, refer to the paper.&lt;/p&gt;
+
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/results.png&quot; alt=&quot;table results from TimeGAN&quot; class=&quot;center&quot; width=&quot;400&quot; height=&quot;100&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h1 id=&quot;rc-gan--stock-data&quot;&gt;RC-GAN + Stock Data&lt;/h1&gt;
+
+&lt;p&gt;Since both RC-GAN and TimeGAN show similar results and RC-GAN is a much simpler approach we will implement and investigate RC-GAN.&lt;/p&gt;
+
+&lt;h3 id=&quot;generator-and-discriminator&quot;&gt;Generator and Discriminator&lt;/h3&gt;
+
+&lt;script src=&quot;https://gist.github.com/gebob19/201691dca85d9e766a9b5b896824dc44.js&quot;&gt;&lt;/script&gt;
+
+&lt;h3 id=&quot;training-loop&quot;&gt;Training Loop&lt;/h3&gt;
+
+&lt;script src=&quot;https://gist.github.com/gebob19/4f95f82c80f8ff7f1122c5897a6db877.js&quot;&gt;&lt;/script&gt;
+
+&lt;h2 id=&quot;visualizing-stock-data&quot;&gt;Visualizing Stock Data&lt;/h2&gt;
+
+&lt;p&gt;Before we generate stock data, we need to understand how stock data is visualized.&lt;/p&gt;
+
+&lt;p&gt;Every day, the price which the stock opened and closed at, and the highest and lowest price the stock reached that day is represented using a candlestick.&lt;/p&gt;
+
+&lt;p&gt;If the stock closed higher than it opened, the candle is filled green. If the stock closed lower than it opened, then the candle is filled red.&lt;/p&gt;
+
+&lt;p&gt;Nice!&lt;/p&gt;
+
+&lt;div align=&quot;center&quot; width=&quot;600&quot; height=&quot;300&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/candlesticks.jpg&quot; alt=&quot;candlestick_model&quot; class=&quot;center&quot; width=&quot;600&quot; height=&quot;300&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;examples&quot;&gt;Examples&lt;/h3&gt;
+
+&lt;p&gt;The model was trained with the GOOGLE price data split into 30-day parts (used in the TimeGAN paper).&lt;/p&gt;
+
+&lt;p&gt;Below are some generated data along with low-dimension analysis using T-SNE.&lt;/p&gt;
+
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/ex/s1.png&quot; alt=&quot;examples&quot; class=&quot;center&quot; width=&quot;400&quot; height=&quot;100&quot; /&gt;
+&lt;/div&gt;
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/ex/s2.png&quot; alt=&quot;examples&quot; class=&quot;center&quot; width=&quot;400&quot; height=&quot;100&quot; /&gt;
+&lt;/div&gt;
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/ex/s3.png&quot; alt=&quot;examples&quot; class=&quot;center&quot; width=&quot;400&quot; height=&quot;100&quot; /&gt;
+&lt;/div&gt;
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/ex/tsne.png&quot; alt=&quot;examples&quot; class=&quot;center&quot; width=&quot;400&quot; height=&quot;100&quot; /&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Though it looks that the examples overlap through a T-SNE visualization, they do not always look realistic.&lt;/p&gt;
+
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/ex/s4.png&quot; alt=&quot;tsne-overlap&quot; class=&quot;center&quot; width=&quot;400&quot; height=&quot;100&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;feature-association&quot;&gt;Feature Association&lt;/h2&gt;
+
+&lt;p&gt;We can also investigate what the learned features associate with by shifting the axis values around in latent space. Since we trained our model with a \(z\) dimension of 10 we can shift the value of each of these dimensions and see how it changes the generated stock data.&lt;/p&gt;
+
+&lt;h3 id=&quot;original-generated-data&quot;&gt;[Original Generated Data]&lt;/h3&gt;
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/og.png&quot; alt=&quot;original-data&quot; class=&quot;center&quot; width=&quot;700&quot; height=&quot;200&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;shifting-noise-axis-values--1--05-05-1&quot;&gt;Shifting Noise Axis Values [-1, -0.5, +0.5, +1]&lt;/h2&gt;
+
+&lt;h3 id=&quot;index-0&quot;&gt;Index 0&lt;/h3&gt;
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features0.png&quot; alt=&quot;feature&quot; class=&quot;center&quot; width=&quot;700&quot; height=&quot;200&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;index-1&quot;&gt;Index 1&lt;/h3&gt;
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features1.png&quot; alt=&quot;feature&quot; class=&quot;center&quot; width=&quot;700&quot; height=&quot;200&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;index-2&quot;&gt;Index 2&lt;/h3&gt;
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features2.png&quot; alt=&quot;feature&quot; class=&quot;center&quot; width=&quot;700&quot; height=&quot;200&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;index-3&quot;&gt;Index 3&lt;/h3&gt;
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features3.png&quot; alt=&quot;feature&quot; class=&quot;center&quot; width=&quot;700&quot; height=&quot;200&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;index-4&quot;&gt;Index 4&lt;/h3&gt;
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features4.png&quot; alt=&quot;feature&quot; class=&quot;center&quot; width=&quot;700&quot; height=&quot;200&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;index-5&quot;&gt;Index 5&lt;/h3&gt;
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features5.png&quot; alt=&quot;feature&quot; class=&quot;center&quot; width=&quot;700&quot; height=&quot;200&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;index-6&quot;&gt;Index 6&lt;/h3&gt;
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features6.png&quot; alt=&quot;feature&quot; class=&quot;center&quot; width=&quot;700&quot; height=&quot;200&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;index-7&quot;&gt;Index 7&lt;/h3&gt;
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features7.png&quot; alt=&quot;feature&quot; class=&quot;center&quot; width=&quot;700&quot; height=&quot;200&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;index-8&quot;&gt;Index 8&lt;/h3&gt;
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features8.png&quot; alt=&quot;feature&quot; class=&quot;center&quot; width=&quot;700&quot; height=&quot;200&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;index-9&quot;&gt;Index 9&lt;/h3&gt;
+&lt;div align=&quot;center&quot; width=&quot;500&quot; height=&quot;100&quot;&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/gebob19/gebob19.github.io/source/assets/recursive_gan/features/features9.png&quot; alt=&quot;feature&quot; class=&quot;center&quot; width=&quot;700&quot; height=&quot;200&quot; /&gt;
+&lt;/div&gt;
+
+&lt;p&gt;There is also a &lt;a href=&quot;https://github.com/gebob19/RNN_stock_generation&quot;&gt;notebook&lt;/a&gt; which contains all the code needed to test this out for yourself!&lt;/p&gt;
+
+&lt;p&gt;If you enjoyed the post, feel free to follow me on &lt;a href=&quot;https://twitter.com/brennangebotys&quot;&gt;Twitter&lt;/a&gt; for updates on new posts!&lt;/p&gt;
+
+&lt;h1 id=&quot;references&quot;&gt;References&lt;/h1&gt;
+
+&lt;ol class=&quot;bibliography&quot;&gt;&lt;li&gt;&lt;span id=&quot;mogren2016c&quot;&gt;Mogren, O. (2016). C-RNN-GAN: Continuous recurrent neural networks with adversarial training. &lt;i&gt;ArXiv Preprint ArXiv:1611.09904&lt;/i&gt;.&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;esteban2017real&quot;&gt;Esteban, C., Hyland, S. L., &amp;amp; Rätsch, G. (2017). Real-valued (medical) time series generation with recurrent conditional gans. &lt;i&gt;ArXiv Preprint ArXiv:1706.02633&lt;/i&gt;.&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;yoon2019time&quot;&gt;Yoon, J., Jarrett, D., &amp;amp; van der Schaar, M. (2019). Time-series generative adversarial networks. &lt;i&gt;Advances in Neural Information Processing Systems&lt;/i&gt;, 5508–5518.&lt;/span&gt;&lt;/li&gt;&lt;/ol&gt;
+</description>
+        <pubDate>Thu, 23 Jul 2020 00:00:00 -0400</pubDate>
+        <link>/20723.html</link>
+        <guid isPermaLink="true">/20723.html</guid>
+        
+        
+        <category>example</category>
+        
+      </item>
+    
+      <item>
+        <title>Convex Optimization: Algorithms and their Rate of Convergence</title>
+        <description>&lt;p&gt;Get the presentation &lt;a href=&quot;\assets\convex\convex_pres.pdf&quot;&gt;here&lt;/a&gt;!&lt;/p&gt;
+
+&lt;p&gt;Get the handout presentation &lt;a href=&quot;\assets\convex\convex_handout.pdf&quot;&gt;here&lt;/a&gt;!&lt;/p&gt;
+
+&lt;p&gt;Get the Beautiful Latex &lt;a href=&quot;\assets\convex\convex.zip&quot;&gt;here&lt;/a&gt;!&lt;/p&gt;
+
+&lt;p&gt;Thank you!&lt;/p&gt;
+
+</description>
+        <pubDate>Sun, 19 Apr 2020 00:00:00 -0400</pubDate>
+        <link>/20419.html</link>
+        <guid isPermaLink="true">/20419.html</guid>
+        
+        
+        <category>example</category>
+        
+      </item>
+    
+      <item>
+        <title>Encapsulating Capsule Networks: Everything You Need To Know</title>
+        <description>&lt;p&gt;When applying Convolutional Neural Networks (CNNs) &lt;a class=&quot;citation&quot; href=&quot;#NIPS1989_293&quot;&gt;(LeCun et al., 1990)&lt;/a&gt; to a computer vision task, a change in viewpoint (change in orientation, position, shear, etc.) is likely to lead to drastically different network activations, hindering the model’s ability to generalize. To solve this problem, current CNNs require a large number of parameters, datasets and computational power.&lt;/p&gt;
+
+&lt;p&gt;This lead to the introduction of Capsule Networks &lt;a class=&quot;citation&quot; href=&quot;#tae&quot;&gt;(Hinton et al., 2011)&lt;/a&gt;. Capsule Networks aim to generalize to different viewpoints by taking advantage of the fact that the relationship between parts of an object is viewpoint invariant. It has been shown that these networks generalize better than standard CNNs, are more robust to adversarial attacks, achieve higher accuracy, all while requiring significantly fewer parameters.&lt;/p&gt;
+
+&lt;p&gt;In this post, we focus on the following topics…&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Introduction to the Viewpoint Problem
+    &lt;ul&gt;
+      &lt;li&gt;CNN’s Solution&lt;/li&gt;
+      &lt;li&gt;Capsule Network’s Solution&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Introduction to Capsule Networks&lt;/li&gt;
+  &lt;li&gt;Routing Algorithms
+    &lt;ul&gt;
+      &lt;li&gt;Dynamic Routing Between Capsules &lt;a class=&quot;citation&quot; href=&quot;#drbc&quot;&gt;(Sabour et al., 2017)&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;Matrix Capsules with EM Routing &lt;a class=&quot;citation&quot; href=&quot;#mcwer&quot;&gt;(Hinton et al., 2018)&lt;/a&gt;
+        &lt;ul&gt;
+          &lt;li&gt;with a prerequisite: Gaussian Mixtures with EM&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Though this may seem intimidating, don’t worry, as long as you don’t have a medical phobia of capsules, you’ll be able to swallow all the knowledge in this post.&lt;/p&gt;
+
+&lt;h1 id=&quot;the-problem&quot;&gt;The Problem&lt;/h1&gt;
+
+&lt;p&gt;The problem comes from the goal of computer vision generalization, as we want our models to generalize to unseen data. My version of generalization is as follows,&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;After training on an image, when tested on a slightly modified version of the image, the two responses are similar.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;One of the main reasons that test images are ‘slight modifications’ of training images is a change in viewpoint. A change in viewpoint is defined as,&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;A change in the position from which something or someone is observed.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;A few examples of viewpoint transformations are as follows,&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Rotations (rotating 90 degrees)&lt;/li&gt;
+  &lt;li&gt;Shifts (moving 30 pixels left)&lt;/li&gt;
+  &lt;li&gt;Scaling (zooming in/moving closer; shift in the +z axis)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;em&gt;Note:&lt;/em&gt; Viewpoint-transformations can modify part(s) of the image or the entire image and can be applied to any of the 3 dimensions (x, y, or z).&lt;/p&gt;
+
+&lt;div align=&quot;center&quot;&gt;
+&lt;iframe src=&quot;https://giphy.com/embed/5QTKDImCF2wOnJpRFs&quot; width=&quot;480&quot; height=&quot;270&quot; frameborder=&quot;0&quot; class=&quot;giphy-embed&quot; allowfullscreen=&quot;&quot;&gt;&lt;/iframe&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;em&gt;Tip:&lt;/em&gt; Would your model be able to identify the car throughout all of its different viewpoint changes?&lt;/p&gt;
+
+&lt;p&gt;If we can reasonably account for viewpoint variability in images we will improve model generalization. Consequently, when improving model generalization we are also likely to improve model test accuracy while requiring fewer data examples and parameters.&lt;/p&gt;
+
+&lt;h1 id=&quot;solutions&quot;&gt;Solutions&lt;/h1&gt;
+
+&lt;p&gt;In this section, we briefly discuss solutions to the change in viewpoint, including the CNN solution and The Capsule Network solution. Both solutions include some kind of representation learning and information routing.&lt;/p&gt;
+
+&lt;p&gt;We define activations as \(a \in A\), model input as \(x \in X\), our model as \(f: X \rightarrow A\) and a viewpoint transformation as \(T\).&lt;/p&gt;
+
+&lt;h2 id=&quot;the-cnn-solution---brute-force-and-extract&quot;&gt;The CNN Solution - Brute Force and Extract&lt;/h2&gt;
+
+&lt;p&gt;To account for viewpoint changes, general CNNs aim to model viewpoint-&lt;em&gt;invariance&lt;/em&gt;. Invariance is defined as,&lt;/p&gt;
+
+\[f(Tx) = f(x) \tag{0}\]
+
+&lt;p&gt;Less formally, CNNs want their network activations to remain unchanged regardless of the viewpoint transformation applied. To show how CNNs could achieve this we must first introduce Data Augmentation and Max-pooling.&lt;/p&gt;
+
+&lt;h3 id=&quot;data-augmentation---the-representations&quot;&gt;Data Augmentation - The Representations&lt;/h3&gt;
+
+&lt;p&gt;A popular method to improve model generalization is to train on randomly augmented data examples. However, this turns out to be problematic and inefficient.&lt;/p&gt;
+
+&lt;p&gt;Learning viewpoint representations from data augmentations is difficult as most viewpoint transformations require 3D data. As most computer vision tasks train on 2D data, we are limited to simple 2D transformations.&lt;/p&gt;
+
+&lt;p&gt;Models which learn from the few viewpoint transformations we can apply turn out to be parameter inefficient. It’s been shown that early layers in a CNN trained with data augmentation are rotated, scaled and translated copies of one another &lt;a class=&quot;citation&quot; href=&quot;#visandunderstandingcnns&quot;&gt;(Zeiler &amp;amp; Fergus, 2013)&lt;/a&gt;. This insight leads to the idea that CNNs could be learning specific feature detectors for each possible transformation to account for viewpoint variance, which is extremely inefficient.&lt;/p&gt;
+
+&lt;h3 id=&quot;max-pooling---the-routing&quot;&gt;Max-pooling - The Routing&lt;/h3&gt;
+
+&lt;p&gt;Assuming that we have learned a feature detector for each corresponding viewpoint transformation, CNNs then attempt to route this information using the max-pooling layer &lt;a class=&quot;citation&quot; href=&quot;#mp&quot;&gt;(Riesenhuber &amp;amp; Poggio, 1999)&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Max-pooling extracts the largest value in a group of neighbouring values.&lt;/p&gt;
+
+\[f_{pool}: a_{pooled} = \max(a_{group}) \tag{1}\]
+
+&lt;p&gt;Max-pooling is locally shift-invariant because shifts which don’t move the largest value out of its group, result in the same \(a_{pooled}\) being extracted.&lt;/p&gt;
+
+&lt;p&gt;We can formulate the max-pooling invariance as the following,&lt;/p&gt;
+
+\[f_{pool}( T_{localshift} x) = f_{pool}(x) \tag{2}\]
+
+&lt;p&gt;Applying max-pooling to feature maps of a network can help us learn a viewpoint-invariant model. For example, applying max-pooling to a group of rotation weight activations, we can extract the features of the best fit rotation. Doing so would allow us to become rotation invariant.&lt;/p&gt;
+
+&lt;p&gt;This leads to a CNNs approach to achieve viewpoint invariance; Learn a set of feature detectors for each viewpoint transformation and apply max-pooling to each group of transformation specific weights to extract/route the best fit activations.&lt;/p&gt;
+
+&lt;p&gt;However, an important problem with max-pooling is that we end up discarding a lot of useful information in the group.&lt;/p&gt;
+
+&lt;h3 id=&quot;final-thoughts&quot;&gt;Final Thoughts&lt;/h3&gt;
+
+&lt;p&gt;In practice, it doesn’t work out nearly as nice and easy as I described but hopefully, this gives you a general idea about how representation learning and routing could be working with current CNNs.&lt;/p&gt;
+
+&lt;p&gt;Though this technique has lead to great results, it is easy to see how extremely inefficient and expensive to train a model like this is.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;There must be a better way!&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;the-capsule-network-solution---a-capsule-a-day-keeps-the-invariance-away&quot;&gt;The Capsule Network Solution - A Capsule A Day Keeps The Invariance Away&lt;/h2&gt;
+
+&lt;p&gt;Look no further, Capsule Network are here to save the day!&lt;/p&gt;
+
+&lt;p&gt;Unlike standard CNNs, Capsule Networks aim to model viewpoint-&lt;em&gt;equivariance&lt;/em&gt;. Equivariance is defined as,&lt;/p&gt;
+
+\[f(Tx) = Tf(x) \tag{3}\]
+
+&lt;p&gt;Less formally, Capsule Networks want their network activations to change in a structured way corresponding to the viewpoint transformation. The idea is that it would be easier to model complex distributions like images if our activations change in a structured way.&lt;/p&gt;
+
+&lt;p&gt;Capsule Networks achieve equivariance in two steps.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Explicitly represent parts located in the image.&lt;/li&gt;
+  &lt;li&gt;Take advantage of the fact that the relationship between parts of an object is viewpoint invariant.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Assuming we can identify and represent simple parts in an image (step 1), it would be nice to be able to combine these simple parts to detect more complex objects.&lt;/p&gt;
+
+&lt;p&gt;For example, suppose we see the parts of an image are a pair of eyes, a nose and a mouth. Then I asked you, is there a face in the image? You would most likely check if the parts were structured in a certain way (eyes are above the nose, the mouth is right below the nose, etc.) and if they were, you would be confident there is a face in the image.&lt;/p&gt;
+
+&lt;p&gt;We can be confident there is a face in the image because there is a clear relationship between the eyes, the nose and the mouth to create a face. A great property about this relationship is that its viewpoint-invariant.&lt;/p&gt;
+
+&lt;p&gt;If we rotate, shift, change the brightness and apply a few other viewpoint transformations to the face (the object) and the relationships between the parts (the eyes, the nose and the mouth) and the object (the face) stay the same.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Tip:&lt;/em&gt; If you don’t believe me, look at your nose and move/rotate your head in any direction. If someone is watching you, your nose would be moving all over the place, but relative to your eyes, your nose won’t move at all. This is the invariance between parts of an object.&lt;/p&gt;
+
+&lt;p&gt;Capsule Networks work like this. We will dive more into the details next.&lt;/p&gt;
+
+&lt;p&gt;But before we do that, I ask you to repeat it with me…&lt;/p&gt;
+
+&lt;p&gt;‘What do we want?’&lt;/p&gt;
+
+&lt;p&gt;‘Equivariance to improve generalization requiring less data and parameters!’&lt;/p&gt;
+
+&lt;p&gt;‘When do we want it?’&lt;/p&gt;
+
+&lt;p&gt;‘Now!’&lt;/p&gt;
+
+&lt;p&gt;Excellent!&lt;/p&gt;
+
+&lt;!-- &lt;iframe src=&quot;https://giphy.com/embed/ZaQLbWXMT28TJHnQc9&quot; width=&quot;480&quot; height=&quot;193&quot; frameBorder=&quot;0&quot; class=&quot;center&quot;&gt;&lt;/iframe&gt; --&gt;
+
+&lt;h1 id=&quot;introduction-to-capsule-networks&quot;&gt;Introduction to Capsule Networks&lt;/h1&gt;
+
+&lt;p&gt;In this section, we cover general details and the intuition behind Capsule Networks. For more posts on the topic see ‘More Resources’ at the bottom of the page.&lt;/p&gt;
+
+&lt;p&gt;We first define a few terms and the setup.&lt;/p&gt;
+
+&lt;p&gt;We refer to instances in an image as either a part or an object. The relationship is that a part belongs to an object. We assume a two-layer capsule network setup for conciseness. The first layer is referred to as low-level capsules (simple parts) and the second layer is referred to as high-level capsules (complex objects). Usually, the low-level capsules are known and we want to compute the high-level capsules. Don’t worry if that last part didn’t make sense, it will soon.&lt;/p&gt;
+
+&lt;h2 id=&quot;part-and-object-representations---the-part-and-the-capsule&quot;&gt;Part and Object Representations - The Part and The Capsule&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;ol&gt;
+    &lt;li&gt;Explicitly represent parts located in the image.&lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Learning to model parts of an image directly would be very difficult. This is because a simple viewpoint transformation results in a large difference in pixel space.&lt;/p&gt;
+
+&lt;p&gt;We want to learn a manifold where viewpoint transformations in pixel space result in simple and easy to model differences.&lt;/p&gt;
+
+&lt;p&gt;This manifold relates to the pose of a part (position, orientation, size), since applying a viewpoint transformation to the image would only result in a simple change to the affected part’s pose. Since this manifold would be very complex to specify, we learn it with a CNN.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Note:&lt;/em&gt; This is similar to learning a disentangled representation, which is a popular subject in generative modelling.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Note:&lt;/em&gt; A part could be represented by more than its pose. For example, we could represent a part by its velocity, albedo, or texture but for simplicity, we only consider its pose.&lt;/p&gt;
+
+&lt;p&gt;To extract capsules from the image we pass the image through the CNN and reshape it’s feature vectors to some \(H'\) x \(W'\) x \(CapsuleDim\). This aims to encapsulate parts of the image into the learned manifold.&lt;/p&gt;
+
+&lt;p&gt;Since we treat each section of the image as a part, we must also represent the probability that there is a part, which we refer to as the presence probability.&lt;/p&gt;
+
+&lt;p&gt;The vector which stores the pose and presence probability of a part is called a ‘capsule’.&lt;/p&gt;
+
+&lt;h2 id=&quot;routing-information---complex-objects&quot;&gt;Routing Information - Complex Objects&lt;/h2&gt;
+
+&lt;p&gt;We now focus on how to combine detected parts to detect more complex objects, which is called ‘routing’.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;2. Take advantage of the fact that the relationship between parts of an object is viewpoint invariant.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Since we represent parts and objects with pose matrices we can represent the relationship between a part’s pose and its corresponding object’s pose with a weight matrix. It’s important to remember that this weight would remain the same after applying any viewpoint transformation because the relationship is viewpoint invariant.&lt;/p&gt;
+
+&lt;p&gt;For example, given the pose of an eye \(p_{e}\), we can predict the corresponding face pose \(p_{f}\) as follows,&lt;/p&gt;
+
+\[\begin{align}
+
+p_{e} \cdot W_{ef} &amp;amp;= p_{f} \\ 
+
+\iff f(p_{e}) &amp;amp;= p_{f} \tag{4}
+
+\end{align}\]
+
+&lt;p&gt;Applying a transformation to the face object, by the viewpoint invariant relationship we get…&lt;/p&gt;
+
+\[(T  p_{e}) \cdot W_{ef} = T p_{f} \tag{5}\]
+
+&lt;p&gt;Rearranging and substituting we get,&lt;/p&gt;
+
+\[f(T  p_{e}) = T f(p_{e}) \tag{6}\]
+
+&lt;p&gt;Remind you of anything? Equivariance! \(f(T x) = T f(x)\). Since we are explicitly representing poses with network activations, our model will have viewpoint equivariance.&lt;/p&gt;
+
+&lt;p&gt;From simple parts extracted from the image, we now know how to detect more complex objects. But how can we be sure that the pose prediction is correct? and does the predicted face really exist?&lt;/p&gt;
+
+&lt;h3 id=&quot;prediction-confidence---agreement-between-predictions&quot;&gt;Prediction Confidence - Agreement between Predictions&lt;/h3&gt;
+
+&lt;p&gt;Think back to your early school days, back when you were given math homework. As readers of this blog, I’m sure you were/are all stellar students. Let’s assume your dog ate your finished homework and you can’t remember your answers.&lt;/p&gt;
+
+&lt;p&gt;Your teacher would never believe you! So you do what must be done. You cheat. I know, awful, it was tough to even type that out.&lt;/p&gt;
+
+&lt;p&gt;You go to your friends and ask them what answers they got. If they all got the same answer you can be pretty confident that answer is correct. However, if everyone got different answers then you cannot be sure which answer is correct.&lt;/p&gt;
+
+&lt;p&gt;We follow the same principles since we extracted multiple parts/low-level capsules (nose, ears, etc.) from the image, we ask them to predict the object/high-level capsules pose (face). We can set the high-level capsules pose as the most agreed upon prediction and its presence probability as the amount of agreement.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Example:&lt;/em&gt; If most low-level capsules agree on the high-level capsule’s pose, then we can be confident, by setting a high presence probability (activate the high-level capsule).&lt;/p&gt;
+
+&lt;p&gt;Usually, there will be more than one object represented in an image, so we repeat this process for every high-level capsule. Thus, every low-level capsule predicts every high-level capsule and we look for agreement between the predictions to set the high-level capsules’ value.&lt;/p&gt;
+
+&lt;h2 id=&quot;capsule-recap&quot;&gt;Capsule Recap&lt;/h2&gt;
+
+&lt;p&gt;We achieve viewpoint equivariance by representing parts explicitly and taking advantage of the viewpoint invariant relationships between parts of an object.&lt;/p&gt;
+
+&lt;p&gt;We first transform the image into a manifold where viewpoint transformations result in simple changes, extracting poses and presence probabilities of parts in the image.&lt;/p&gt;
+
+&lt;p&gt;Each part (low-level capsule) predicts each object (high-level capsule). We route agreed-upon predictions to high-level capsules and set their presence probabilities as the amount of agreement between predictions.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Note:&lt;/em&gt; The number of low-level capsules can be related to the number of receptive fields in the eye (too few can result in ‘crowding’ where a single capsule/receptive field represents more than one part/object)&lt;/p&gt;
+
+&lt;p&gt;There are multiple ways to implement routing, we will cover two versions next.&lt;/p&gt;
+
+&lt;h1 id=&quot;routing-algorithms&quot;&gt;Routing Algorithms&lt;/h1&gt;
+
+&lt;p&gt;The two algorithms we will cover are ‘Dynamic routing between capsules’ and ‘Matrix Capsules with EM Routing’.&lt;/p&gt;
+
+&lt;p&gt;If you understood the intuition in the previous section then this should be a breeze.&lt;/p&gt;
+
+&lt;h1 id=&quot;dynamic-routing-between-capsules&quot;&gt;Dynamic Routing Between Capsules&lt;/h1&gt;
+
+&lt;p&gt;This paper implements a very standard and easy to understand version of Capsule Networks. We cover the high-level details, for more specific details refer to the paper or other posts in the ‘More Resources’ section.&lt;/p&gt;
+
+&lt;h2 id=&quot;architecture&quot;&gt;Architecture&lt;/h2&gt;
+
+&lt;p&gt;The network consists of the manifold CNN, a single layer of low-level capsules and a single layer of high-level capsules representing the classes of the classification task (10 classes/high-level capsules on MNIST).&lt;/p&gt;
+
+&lt;p&gt;The procedure is as follows&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Extract low-level capsules using the CNN&lt;/li&gt;
+  &lt;li&gt;Compute high-level capsules&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;representations&quot;&gt;Representations&lt;/h2&gt;
+
+&lt;p&gt;The capsules are represented by 8-dimensional vectors and the presence probability is represented by the magnitude of the capsule. We extract features with a standard CNN and then reshape the features to produce capsules for our image.&lt;/p&gt;
+
+&lt;h2 id=&quot;predictions&quot;&gt;Predictions&lt;/h2&gt;
+
+&lt;p&gt;Low-level capsules predict high-level using weights \(W_{ij}\). The \(i^{th}\) low-level capsule predicts the \(j^{th}\) high-level capsule as \(\hat{u}_{j \mid i}\).&lt;/p&gt;
+
+\[u_i \cdot W_{ij} = \hat{u}_{j\mid i} \tag{7}\]
+
+&lt;p&gt;Now that we know how to compute predictions for high-level capsules, we focus on how to computationally find agreement.&lt;/p&gt;
+
+&lt;h2 id=&quot;routing-with-agreement&quot;&gt;Routing with Agreement&lt;/h2&gt;
+
+&lt;p&gt;For each \(j^{th}\) high-level capsule, we will have \(I\) predictions (\(\hat{u}_{1 \mid j}, \hat{u}_{2 \mid j}, ..., \hat{u}_{I \mid j}\)), one from each of the \(I\) low-level capsules.&lt;/p&gt;
+
+&lt;p&gt;We find agreement with an iterative algorithm which consists of three steps,&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Compute the high-level capsule \(s_j\), with a linear combination of predictions&lt;/li&gt;
+  &lt;li&gt;Apply the squash function to \(s_j\)&lt;/li&gt;
+  &lt;li&gt;Increase the weight of inlier predictions&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;First we assign routing weights for each of the \(K\) predictions, \(c_{1 \mid j}, c_{2 \mid j}, ..., c_{I \mid j}\) for every \(j^{th}\) capsule. They are all initialized to zero.&lt;/p&gt;
+
+\[\underline{Iteration Start}\]
+
+&lt;p&gt;To ensure that each part corresponds to a single object, we apply the softmax to each low-level capsules routing weights.&lt;/p&gt;
+
+\[c_i = softmax(c_i) \tag{8}\]
+
+&lt;p&gt;For each high-level capsule, we compute the high-level pose \(s_j\) with a linear combination of predictions weighted by the routing weights from the low-level capsules.&lt;/p&gt;
+
+\[s_j = \sum_i c_{i \mid j} \hat{u}_{i \mid j} \tag{9}\]
+
+&lt;p&gt;The squash function is then applied to ensure \(\|\mathbf{v_j}\| \leq 1\).&lt;/p&gt;
+
+\[v_j = \dfrac{\|\mathbf{s_j}\|^2}{1 + \|\mathbf{s_j}\|^2} \dfrac{s_j}{\|\mathbf{s_j}\|} \tag{10}\]
+
+&lt;p&gt;Next, we update the weights \(c_{i \mid j}\) by how much they ‘agree’ with the predicted \(v_j\). Where the dot is vector dot product.&lt;/p&gt;
+
+\[c_{i \mid j} = c_{i \mid j} + (\hat{u}_{i \mid j} \cdot v_j) \tag{11}\]
+
+&lt;p&gt;Since \(\hat{u}_{i \mid j} \cdot v_j = \|\mathbf{\hat{u}_{i \mid j}}\|  \|\mathbf{v_j}\| \cos \theta\) where \(\theta\) is the angle between the two vectors. Since \(\cos \theta\) has a maximum value when \(\theta = 0\) we end up increasing the weight of vectors whos angle is close to \(v_j\).&lt;/p&gt;
+
+\[\underline{Iteration End}\]
+
+&lt;p&gt;In practice, we repeat the iteration 3-5 times to find agreement.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Note:&lt;/em&gt; This is similar to finding a cluster centroid in the predictions.&lt;/p&gt;
+
+&lt;p&gt;That is all we will cover since there are a lot of great resources online covering this algorithm. Taken from the paper, the algorithm is below.&lt;/p&gt;
+
+&lt;div align=&quot;center&quot;&gt;
+
+&lt;img src=&quot;https://gebob19.github.io/assets/capsule/dynamicrouting.png&quot; alt=&quot;Dynamic Routing Algorithm&quot; width=&quot;600&quot; class=&quot;center&quot; /&gt;
+
+&lt;/div&gt;
+
+&lt;h1 id=&quot;matrix-capsules-with-em-routing-prereq&quot;&gt;Matrix Capsules with EM Routing Prereq.&lt;/h1&gt;
+
+&lt;p&gt;The next algorithm we will cover is ‘Matrix Routing with EM’. Since this algorithm is the most complex and least covered online, we will focus on it in-depth.&lt;/p&gt;
+
+&lt;p&gt;The algorithm relies on Gaussian Mixtures and Expectation-Maximization. We will review both topics and how they relate to the main algorithm.&lt;/p&gt;
+
+&lt;p&gt;If you are familiar with both feel free to jump to the ‘Matrix Capsules with EM Routing’ section which begins to review the paper.&lt;/p&gt;
+
+&lt;p&gt;For more detailed explanations and derivations on Gaussian Mixtures and EM, I highly suggest you read the linked Mixture Models notes written by University of Toronto faculty.&lt;/p&gt;
+
+&lt;h2 id=&quot;mixture-of-gaussian&quot;&gt;Mixture of Gaussian&lt;/h2&gt;
+
+&lt;p&gt;For an awesome additional resource on this topic checkout Roger Grosse’s notes &lt;a href=&quot;https://www.cs.toronto.edu/~rgrosse/csc321/mixture_models.pdf&quot;&gt;here&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;modeling&quot;&gt;Modeling&lt;/h2&gt;
+&lt;div align=&quot;center&quot;&gt;
+&lt;img src=&quot;https://gebob19.github.io/assets/capsule/multimodal.png&quot; alt=&quot;Multimodal Data Distribution&quot; width=&quot;500&quot; /&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Assume our data distribution is multimodal (more than one hump). We would like to model our data with the efficient Gaussian distribution but a single Gaussian would not fit the data well.&lt;/p&gt;
+
+&lt;p&gt;What in the world shall we do? The data world has not been kind to us but as readers of this blog, we will not go quietly in the night. We shall do the unthinkable and model our data with a mixture of MULTIPLE Gaussians!&lt;/p&gt;
+
+&lt;p&gt;For generality, assume we want to model our data with \(K\) Gaussian distributions and our data consists of \(N\) points.&lt;/p&gt;
+
+&lt;p&gt;Modelling our data with multiple Gaussians we can derive the likelihood as follows,&lt;/p&gt;
+
+\[\begin{align}
+
+p(x) &amp;amp;= \sum_K P(x | z=k) \; p(z=k)  \\
+&amp;amp;= \sum_K \pi_k \; P(x | z=k) \tag{12}\\
+&amp;amp;= \sum_K \pi_k \; \mathcal{N}(x \mid \mu_k, \sigma_k) \\
+
+\end{align}\]
+
+&lt;p&gt;So the parameters we aim to optimize \(\theta = \{\mu_1, \sigma_1, \pi_1, ..., \mu_K, \sigma_K, \pi_K\}\)&lt;/p&gt;
+
+&lt;h2 id=&quot;optimizing-with-expectation-maximization&quot;&gt;Optimizing with Expectation-Maximization&lt;/h2&gt;
+
+&lt;p&gt;There are multiple ways we could optimize our model but we do not settle for just any technique. You got it, we focus on expectation-maximization! An elegant and efficient algorithm for optimizing model parameters to our data.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Note:&lt;/em&gt; There is a more general form of EM which applies to any latent distribution but since we only use the Gaussian mixture edition, we will only focus on it.&lt;/p&gt;
+
+&lt;p&gt;The heart of the algorithm is the following formula,&lt;/p&gt;
+
+\[\begin{align}
+
+\dfrac{d}{d\theta}\log{p(x)}  &amp;amp;= \mathbb{E}_{p(z\mid x)}[\dfrac{d}{d\theta} \log p(z, x)] \tag{13} \\
+
+&amp;amp;= \mathbb{E}_{p(z\mid x)}[\dfrac{d}{d\theta} \log p(z) + \log p(x \mid z)] \\
+
+\end{align}\]
+
+&lt;p&gt;Computing \(\log p(z)\) and \(\log p(x \mid z)\) is trivial since \(\log p(z)\) is a learned parameter \(\pi_k\) and \(\log p(x \mid z)\) can be calculated with the Gaussian PDF formula.&lt;/p&gt;
+
+&lt;p&gt;How would we compute \(p(z\mid x)\)? We use bayes rule to get,&lt;/p&gt;
+
+\[\begin{align}
+
+p(z \mid x) &amp;amp;\propto p(x \mid z) p(z) \tag{14}\\
+
+\\[0.2mm]
+
+p(z=k \mid x) &amp;amp;= \dfrac{p(x \mid z=k) p(z=k)}{\sum_K p(x \mid z=k) p(z=k)} \\
+
+\\[0.2mm]
+
+&amp;amp;= \dfrac{\pi_k \mathcal{N}(x \mid \mu_k, \sigma_k)}{\sum_K \pi_k \mathcal{N}(x \mid \mu_k, \sigma_k)}
+
+\end{align}\]
+
+&lt;p&gt;Now that we know how to compute every term, out of curiosity we evaluate the log-likelihood’s derivative \(d \ell\) for our parameters \(\mu_k\), \(\sigma_k\) and \(\pi_k\)&lt;/p&gt;
+
+&lt;p&gt;For simplicity we let \(r_k^{(i)} = p(z = k \mid x^{(i)}) = \dfrac{\pi_k \mathcal{N}(x^{(i)} \mid \mu_k, \sigma_k)}{\sum_K \pi_k \mathcal{N}(x^{(i)} \mid \mu_k, \sigma_k)}\).&lt;/p&gt;
+
+&lt;p&gt;Solving for the derivative of the mean of the \(k^{th}\) Gaussian, \(\mu_k\)&lt;/p&gt;
+
+\[\begin{align}
+
+\dfrac{d \ell}{d\mu_k}  &amp;amp;= \mathbb{E}_{p(z\mid x)}[\dfrac{d}{d\mu_k} \log p(z) + \log p(x \mid z)] \\
+
+&amp;amp;= \sum_{i=1}^{N} r_k^{(i)} \; [\dfrac{d}{d\mu_k} (\log p(z = k) + \log p(x^{(i)} \mid z = k))] \quad \text{[By definition of Expectation]}\tag{15}\\
+
+&amp;amp;= \sum_{i=1}^{N} r_k^{(i)} \; [\dfrac{d}{d\mu_k} (\log \pi_k + \log \mathcal{N}(x^{(i)} \mid \mu_k, \sigma_k))] \\
+
+&amp;amp;= \sum_{i=1}^{N} r_k^{(i)} \; \dfrac{d}{d\mu_k} \log \mathcal{N}(x^{(i)} \mid \mu_k, \sigma_k) \\
+
+&amp;amp;= \sum_{i=1}^{N} r_k^{(i)} \; (0 + \dfrac{x^{(i)} - \mu_k}{\sigma_k^2}) \\
+
+&amp;amp;= \sum_{i=1}^{N} r_k^{(i)} \; \dfrac{x^{(i)} - \mu_k}{\sigma_k^2} \\
+
+\end{align}\]
+
+&lt;p&gt;This looks very simple, so simple we should be able to solve for the optimal value by setting the derivative to zero. Doing so we get the optimal value \(\mu_k^*\),&lt;/p&gt;
+
+\[\mu_k^* = \dfrac{\sum_{i=1}^{N} r_k^{(i)} x^{(i)}}{\sum_{i=1}^{N} r_k^{(i)}} \tag{16}\]
+
+&lt;p&gt;&lt;em&gt;Bystander:&lt;/em&gt; Whoa there cowboy, your \(r_k\) depends on \(\mu_k\) and thus that optimal value is incorrect. You should put on this approximate hat to signify you it is not the true optimal value…&lt;/p&gt;
+
+\[\hat{\mu}^*\]
+
+&lt;p&gt;Though this is not the true optimal value, it turns out to be a good approximation. This approximated optimal parameter \(\hat{\mu_k}^*\) is used as a ‘step’ towards the true optimal parameter \(\mu_k^*\).&lt;/p&gt;
+
+&lt;p&gt;We can derive similar results on the other parameters by fixing \(r_k^{(i)}\) to obtain approximate optimal values \(\hat{\theta}^*\) for parameters \(\theta\).&lt;/p&gt;
+
+\[\hat{\pi_k}^* \leftarrow \dfrac{1}{N} \sum_{i=1}^N r_k^{(i)} \tag{17}\\
+
+\\[0.4cm]
+
+\hat{\mu_k}^* \leftarrow \dfrac{\sum_{i=1}^N r_k^{(i)} x^{(i)}}{\sum_{i=1}^N r_k^{(i)}} 
+
+\\[0.4cm]
+
+\hat{(\sigma_k^2)}^* \leftarrow \dfrac{\sum_{i=1}^N r_k^{(i)} (x^{(i)} - \mu_k)^2}{\sum_{i=1}^N r_k^{(i)}}\]
+
+&lt;p&gt;This leads us to the iterative EM algorithm&lt;/p&gt;
+
+&lt;p&gt;The \(E\)-Step: Compute responsibilities \(r_k\).&lt;/p&gt;
+
+\[r_k^{(i)} \leftarrow p(z = k \mid x^{(i)}) \tag{18}\]
+
+&lt;p&gt;The \(M\)-Step: Compute and update parameters \(\theta\) to the approximate optimal parameters \(\hat{\theta}^*\)&lt;/p&gt;
+
+\[\theta \leftarrow \arg\max_{\theta} \sum_{i=1}^N \sum_{k=1}^K r_k^{(i)} [\log p(z=k) + \log p(x^{(i)} \mid z = k)] \tag{19}\]
+
+&lt;p&gt;The algorithm fits our data iteratively by&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Increase/decrease the weights \(r_k\) to the best/worst fit distributions&lt;/li&gt;
+  &lt;li&gt;Update the parameters to fit the current weights&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Does this sound familiar? If you flip the steps and let the brain work its magic you have something similar to the Dynamic Routing algorithm.&lt;/p&gt;
+
+&lt;p&gt;In the next section, we talk about how we can use this algorithm to model capsule routing and agreement with a Gaussian distribution.&lt;/p&gt;
+
+&lt;h1 id=&quot;matrix-capsules-with-em-routing&quot;&gt;Matrix Capsules with EM Routing&lt;/h1&gt;
+
+&lt;p&gt;We can now introduce EM Routing. The goal is to model low-level capsule votes with a multi-dimensional Gaussian. This turns out to be very similar to EM with a mixture of Gaussians.&lt;/p&gt;
+
+&lt;h2 id=&quot;representations-1&quot;&gt;Representations&lt;/h2&gt;
+
+&lt;p&gt;A capsule is represented by a 4x4 pose matrix \(M\) and an activation probability \(a\). Therefore, each capsule will have dimensions (4 x 4 + 1).&lt;/p&gt;
+
+&lt;p&gt;We extract the first level capsules by passing the image through the CNN and then reshaping it’s features to some \(H'\) x \(W'\) x (4 x 4 + 1).&lt;/p&gt;
+
+&lt;h2 id=&quot;predictions-1&quot;&gt;Predictions&lt;/h2&gt;
+
+&lt;p&gt;The \(i^{th}\) low-level capsule makes predictions for the \(j^{th}\) high-level capsules with a learned 4x4 matrix \(W_{ij}\). There is a slight change in notation in the paper, so we will use the updated paper’s notation for consistency.&lt;/p&gt;
+
+&lt;p&gt;Where \(u_i \cdot W_{ij} = \hat{u}_{j\mid i}\) is changed to \(M_i \cdot W_{ij} = V_{ij}\) in the paper. \(V_{ij}\) is the \(i^{th}\) low-level capsule’s ‘vote’ for the \(j^{th}\) high-level capsule. As well, the routing weights \(c_{i \mid j}\) are now referred to as \(R_{ij}\).&lt;/p&gt;
+
+&lt;h2 id=&quot;routing&quot;&gt;Routing&lt;/h2&gt;
+
+&lt;p&gt;The main difference in this algorithm is how routing is conducted.&lt;/p&gt;
+
+&lt;p&gt;For the \(j^{th}\) high-level capsule we have \(I\) low-level capsule predictions (\(V_{1j}, V_{2j}, ..., V_{Ij}\)).&lt;/p&gt;
+
+&lt;p&gt;We refer to the capsules in the \(L^{th}\) layer as \(\Omega_L\)&lt;/p&gt;
+
+&lt;p&gt;The low-level capsules are the known capsules (usually \(\Omega_L\)) and the high-level capsules, are the capsules we are computing (usually \(\Omega_{L+1}\)).&lt;/p&gt;
+
+&lt;p&gt;First, we initialize the low-level capsules routing weights uniformly across the high-level capsules&lt;/p&gt;
+
+\[\forall i \in \Omega_L, j \in \Omega_{L+1}: R_{ij} \leftarrow \dfrac{1}{\mid \Omega_{L+1} \mid} \tag{20}\]
+
+&lt;p&gt;We then iterate between a \(M\)-step for each high-level capsule and an \(E\)-step for each low-level capsule.&lt;/p&gt;
+
+\[\underline{Iteration Start}\\
+
+\\[5mm]
+
+\forall j \in \Omega_{L+1}: \text{M-STEP}(\textbf{a}, R, V, j)\]
+
+&lt;p&gt;The \(M\) step is as follows,&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;Since we only care about the votes for &lt;em&gt;existing&lt;/em&gt; parts and active capsules, we re-weight the routing weights by each low-level capsule’s presence probability.&lt;/p&gt;
+
+\[\forall i \in \Omega_L: R_{ij} \leftarrow R_{ij} * a_i \tag{21}\]
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;We then use EM to solve for the approximate optimal parameters for the Gaussian over the low-level capsule votes.&lt;/p&gt;
+
+    &lt;p&gt;&lt;em&gt;Note:&lt;/em&gt; Since the votes \(V_{ij}\) are multidimensional, we have to compute parameters for each dimension \(h\).&lt;/p&gt;
+
+\[\forall h: \mu^h_j \leftarrow \dfrac{\sum_i R_{ij} V_{ij}^h}{\sum_i R_{ij}}  \tag{22}\\
+
+ \\[0.4cm]
+
+ \forall h: (\sigma_j^h)^2 \leftarrow \dfrac{\sum_i R_{ij} (V_{ij}^h - \mu_j^h)^2}{\sum_i R_{ij}}\]
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;We now focus on how to compute the high-level capsule’s presence probability \(a_j\). Following the intuition of, if there is agreement between votes then the high-level capsule should be present. We can compute the ‘agreement’ by how well the Gaussian fits the weighted votes using its probability density function (PDF).&lt;/p&gt;
+
+    &lt;p&gt;Computing the pdf \(P_{i \mid j}^h\) of the \(i^{th}\) low-level capsule’s vote under the \(j^{th}\) high-level capsule’s Gaussian’s \(h^{th}\) component is as follows,&lt;/p&gt;
+
+\[P_{i \mid j}^h = \dfrac{1}{\sqrt{2\pi(\sigma_j^h)^2}} \exp(-\dfrac{(V_{ij}^h - \mu_j^h)^2}{2(\sigma_j^h)^2}) \tag{23}
+ \\
+ \\[0.4cm]
+
+ \ln(P_{i \mid j}^h) = -\dfrac{(V_{ij}^h - \mu_j^h)^2}{2(\sigma_j^h)^2} - \ln(\sigma_j^h) - \ln(2\pi)/2\]
+
+    &lt;p&gt;Taking into account the routing weights, the total \(Agreement\) on the \(h^{th}\) component of the \(j^{th}\) high-level capsule is as follows,&lt;/p&gt;
+
+\[{Agreement}_j^h = \sum_i R_{ij} \ln(P_{i \mid j}^h) \tag{24}\]
+
+    &lt;p&gt;We want to maximize agreement. In the paper, instead of agreement they refer to the cost (negative agreement). Minimizing the cost is the same as maximizing the agreement. We can simplify the cost equation of a high-level capsule is as follows,&lt;/p&gt;
+
+\[\begin{align}
+ {cost}_j^h &amp;amp;= \sum_i -R_{ij} \ln(P_{i \mid j}^h) \\
+
+ &amp;amp;=  \dfrac{\sum_i R_{ij} (V_{ij}^h - \mu_j^h)^2}{2(\sigma_j^h)^2} +   (\ln(\sigma_j^h) + \dfrac{\ln{(2\pi)}}{2})\sum_i R_{ij} \\\tag{25}
+
+ \\[0.1mm]
+
+ &amp;amp;=  \dfrac{\sum_i R_{ij} (V_{ij}^h - \mu_j^h)^2}{2(\dfrac{\sum_i R_{ij} (V_{ij}^h - \mu_j^h)^2}{\sum_i R_{ij}})} +   (\ln(\sigma_j^h) + \dfrac{\ln{(2\pi)}}{2})\sum_i R_{ij} \quad \text{[By definition of } (\sigma_j^h)^2 \text{]}\\
+
+ \\[0.1mm]
+
+ &amp;amp;= \dfrac{1}{2} \sum_i R_{ij} +  (\ln(\sigma_j^h) + \dfrac{\ln{(2\pi)}}{2})\sum_i R_{ij} \\
+
+ &amp;amp;= (\ln(\sigma_j^h) + \dfrac{1}{2} + \dfrac{\ln{(2\pi)}}{2})\sum_i R_{ij} 
+
+ \end{align}\]
+
+    &lt;p&gt;This equation ends up being the standard deviation weighted by the total amount of information flowing into the capsule. We thus want to find tight agreement in the votes to minimize the standard deviation, \(\sigma_j^h\) resulting in low cost. We compute the cost as follows,&lt;/p&gt;
+
+\[cost^h \leftarrow (\beta_u + \log(\sigma_j^h)) \sum_i R_{ij} \tag{26}\]
+
+    &lt;p&gt;&lt;em&gt;Note:&lt;/em&gt; \(\beta_u\) is a learned parameter. This offers the model more flexibility instead of directly using the other constant terms (\(\dfrac{1}{2} + \dfrac{\ln{(2\pi)}}{2}\)) in the derived equation.&lt;/p&gt;
+
+    &lt;p&gt;Since we either activate the capsule or don’t, we need to define the minimum value of agreement required to activate. Another way of saying this is, we need a maximum value of cost so that exceeding this cost, we don’t activate the capsule. We do so with the following formula,&lt;/p&gt;
+
+\[a_j \leftarrow logistic(\lambda(\beta_a - \sum_h cost^h))    \tag{27}\]
+
+    &lt;p&gt;This equation means that the cost of an activated capsule must be less than \(\beta_a\), where \(\beta_a\) is a learned parameter.&lt;/p&gt;
+
+    &lt;p&gt;Since when we begin training our predictions will be very random, we use \(\lambda\) (an inverse temperature parameter) as a way to be less strict to capsule activations to allow gradients to flow. We increase the strictness throughout the training process as our predictions become more accurate.&lt;/p&gt;
+
+    &lt;p&gt;The logistic function either activates the capsule or not depending on if its value is larger than some threshold.&lt;/p&gt;
+
+    &lt;div align=&quot;center&quot;&gt;
+ &lt;img src=&quot;https://gebob19.github.io/assets/capsule/logistic.png&quot; alt=&quot;Logistic Function&quot; width=&quot;500&quot; /&gt;
+ &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;And that is the \(M\) step in full detail. We compute the approximate optimal parameters of the Gaussian over the low-level capsule votes and evaluate the standard deviation of the Gaussian to decide whether or not to activate the high-level capsule.&lt;/p&gt;
+
+&lt;p&gt;Next, we cover the simpler \(E\)-step. This step updates the weights \(R_{ij}\) by how well they agree with the high-level Gaussian.&lt;/p&gt;
+
+&lt;p&gt;The \(E\)-step is as follows,&lt;/p&gt;
+
+\[\forall i \in \Omega_L: \text{E-STEP}(\mu, \sigma, \textbf{a}, V, i)\]
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;We first compute how well the votes agree under the high-level capsule.&lt;/p&gt;
+
+\[\forall j \in \Omega_{L+1}: p_j \leftarrow \dfrac{1}{\sqrt{\prod_h 2\pi(\sigma_j^h)^2}} \exp(- \sum_h \dfrac{(V_{ij}^h - \mu_j^h)^2}{2(\sigma_j^h)^2}) \tag{28}\]
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;We then compute the routing weights as \(a_jp_j\) and normalize so all routing weights from a single low-level capsule sum to one.&lt;/p&gt;
+
+\[\forall j \in \Omega_{L+1}: R_{ij} \leftarrow \dfrac{a_jp_j}{\sum_{k \in \Omega_{L+1}} a_kp_k}\tag{29}\]
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Notice how computing \(R_{ij}\) is the same as computing the responsibilities \(r_k^{(i)}\). We first compute \(p(x \mid z)\) as \(p_j\) and \(p(z)\) as \(a_j\) and then normalize to satisfy bayes rule. We only modify how we compute \(a_j\).&lt;/p&gt;
+
+\[\underline{Iteration End}\]
+
+&lt;p&gt;At the end of the iterations, we use \(a_j\) as the presence probability and \(\mathbf{\mu_j}\) as the pose for the high-level capsule.&lt;/p&gt;
+
+&lt;p&gt;And that’s Matrix Capsules with EM Routing’s algorithm! Taken from the paper, the algorithm is below.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://gebob19.github.io/assets/capsule/emrouting.png&quot; alt=&quot;Matrix Capsules with EM Routing Algorithm&quot; width=&quot;700&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;recap&quot;&gt;Recap&lt;/h2&gt;
+
+&lt;p&gt;We covered EM with a mixture of Gaussian and understood how to achieve routing with such an algorithm by fitting a gaussian to the votes.&lt;/p&gt;
+
+&lt;p&gt;We first covered the \(M\) step where we solve for the approximate optimal parameters of a Gaussian under the low-level capsules votes and decide whether to activate the high-level capsule depending on if there is enough agreement between the votes. We then covered the E-step, where we recompute the routing weights depending on how well the vote falls under the high-level Gaussian.&lt;/p&gt;
+
+&lt;h1 id=&quot;the-future-of-capsule-networks&quot;&gt;The Future of Capsule Networks&lt;/h1&gt;
+
+&lt;p&gt;Why have they not been able to achieve state of the art?&lt;/p&gt;
+
+&lt;p&gt;Unfortunately, the current hardware is not optimized to run these kinds of algorithms at scale &lt;a class=&quot;citation&quot; href=&quot;#scaling&quot;&gt;(Barham &amp;amp; Isard, 2019)&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;We first covered the viewpoint problem which hinders computer vision model generalization. We then investigated how CNNs and Capsule Networks approach the viewpoint variance problem. Lastly, we covered the general intuition of Capsule Networks and two different routing algorithms.&lt;/p&gt;
+
+&lt;p&gt;Thanks for reading!&lt;/p&gt;
+
+&lt;p&gt;Let me know what you think about the post below!&lt;/p&gt;
+
+&lt;p&gt;If you want more content? Follow me on &lt;a href=&quot;https://twitter.com/brennangebotys&quot;&gt;Twitter&lt;/a&gt;!&lt;/p&gt;
+
+&lt;h1 id=&quot;references&quot;&gt;References&lt;/h1&gt;
+
+&lt;ol class=&quot;bibliography&quot;&gt;&lt;li&gt;&lt;span id=&quot;NIPS1989_293&quot;&gt;LeCun, Y., Boser, B. E., Denker, J. S., Henderson, D., Howard, R. E., Hubbard, W. E., &amp;amp; Jackel, L. D. (1990). Handwritten Digit Recognition with a Back-Propagation Network. In D. S. Touretzky (Ed.), &lt;i&gt;Advances in Neural Information Processing Systems 2&lt;/i&gt; (pp. 396–404). Morgan-Kaufmann. http://papers.nips.cc/paper/293-handwritten-digit-recognition-with-a-back-propagation-network.pdf&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;tae&quot;&gt;Hinton, G. E., Krizhevsky, A., &amp;amp; Wang, S. D. (2011). &lt;i&gt;Transforming Auto-Encoders&lt;/i&gt;.&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;drbc&quot;&gt;Sabour, S., Frosst, N., &amp;amp; Hinton, G. E. (2017). &lt;i&gt;Dynamic Routing Between Capsules&lt;/i&gt;.&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;mcwer&quot;&gt;Hinton, G. E., Sabour, S., &amp;amp; Frosst, N. (2018). &lt;i&gt;Matrix Capsules With EM Routing&lt;/i&gt;.&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;visandunderstandingcnns&quot;&gt;Zeiler, M. D., &amp;amp; Fergus, R. (2013). &lt;i&gt;Visualizing and Understanding Convolutional Networks&lt;/i&gt;.&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;mp&quot;&gt;Riesenhuber, M., &amp;amp; Poggio, T. (1999). &lt;i&gt;Hierarchical models of object recognition in cortex&lt;/i&gt;.&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;scaling&quot;&gt;Barham, P., &amp;amp; Isard, M. (2019). &lt;i&gt;Machine Learning Systems are Stuck in a Rut&lt;/i&gt;.&lt;/span&gt;&lt;/li&gt;&lt;/ol&gt;
+
+&lt;h2 id=&quot;more-resources&quot;&gt;More Resources&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Dynamic Routing Capsule Network Video Tutorial: &lt;a href=&quot;https://www.youtube.com/watch?v=pPN8d0E3900&quot;&gt;https://www.youtube.com/watch?v=pPN8d0E3900&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Geoffrey Hinton Capsule Network Talk (2019): &lt;a href=&quot;https://www.youtube.com/watch?v=x5Vxk9twXlE&quot;&gt;https://www.youtube.com/watch?v=x5Vxk9twXlE&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;EM Routing Blog Post with TF Code: &lt;a href=&quot;https://jhui.github.io/2017/11/14/Matrix-Capsules-with-EM-routing-Capsule-Network/&quot;&gt;https://jhui.github.io/2017/11/14/Matrix-Capsules-with-EM-routing-Capsule-Network/&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Gaussian Mixture Models in PyTorch Blog Post: &lt;a href=&quot;https://angusturner.github.io/generative_models/2017/11/03/pytorch-gaussian-mixture-model.html&quot;&gt;https://angusturner.github.io/generative_models/2017/11/03/pytorch-gaussian-mixture-model.html&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Sat, 03 Aug 2019 00:00:00 -0400</pubDate>
+        <link>/1983.html</link>
+        <guid isPermaLink="true">/1983.html</guid>
+        
+        
+        <category>example</category>
+        
+      </item>
+    
+      <item>
+        <title>Going with the Flow: An Introduction to Normalizing Flows</title>
+        <description>&lt;p&gt;&lt;img src=&quot;https://gebob19.github.io/assets/norm_flow/nf.png&quot; alt=&quot;alt text&quot; title=&quot;Normalizing Flows (from R-NVP Paper)&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Normalizing Flows (NFs) &lt;a class=&quot;citation&quot; href=&quot;#rezende2015variational&quot;&gt;(Rezende &amp;amp; Mohamed, 2015)&lt;/a&gt; learn an &lt;em&gt;invertible&lt;/em&gt; mapping \(f: X \rightarrow Z\), where \(X\) is our data distribution and \(Z\) is a chosen latent-distribution.&lt;/p&gt;
+
+&lt;p&gt;Normalizing Flows are part of the generative model family, which includes Variational Autoencoders (VAEs) &lt;a class=&quot;citation&quot; href=&quot;#vaebayes&quot;&gt;(Kingma &amp;amp; Welling, 2013)&lt;/a&gt;, and Generative Adversarial Networks (GANs) &lt;a class=&quot;citation&quot; href=&quot;#NIPS2014_5423&quot;&gt;(Goodfellow et al., 2014)&lt;/a&gt;. Once we learn the mapping \(f\), we generate data by sampling \(z \sim p_Z\) and then applying the inverse transformation, \(f^{-1}(z) = x_{gen}\).&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Note&lt;/em&gt;: \(p_Z(z)\) is the probability density of sampling \(z\) under the distribution \(Z\).&lt;/p&gt;
+
+&lt;p&gt;In this blog to understand normalizing flows better, we will cover the algorithm’s theory and implement a flow model in PyTorch. But first, let us flow through the advantages and disadvantages of normalizing flows.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Note:&lt;/em&gt; If you are not interested in the comparison between generative models you can skip to ‘How Normalizing Flows Work’&lt;/p&gt;
+
+&lt;h2 id=&quot;why-normalizing-flows&quot;&gt;Why Normalizing Flows&lt;/h2&gt;
+
+&lt;p&gt;With the amazing results shown by VAEs and GANs, why would you want to use Normalizing flows? We list the advantages below&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Note&lt;/em&gt;: Most advantages are from the GLOW paper &lt;a class=&quot;citation&quot; href=&quot;#kingma2018glow&quot;&gt;(Kingma &amp;amp; Dhariwal, 2018)&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;NFs optimize the exact log-likelihood of the data, log(\(p_X\))
+    &lt;ul&gt;
+      &lt;li&gt;VAEs optimize the lower bound (ELBO)&lt;/li&gt;
+      &lt;li&gt;GANs learn to fool a discriminator network&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;NFs infer exact latent-variable values \(z\), which are useful for downstream tasks
+    &lt;ul&gt;
+      &lt;li&gt;The VAE infers a distribution over latent-variable values&lt;/li&gt;
+      &lt;li&gt;GANs do not have a latent-distribution&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Potential for memory savings, with NFs gradient computations scaling constant to their depth
+    &lt;ul&gt;
+      &lt;li&gt;Both VAE’s and GAN’s gradient computations scale linearly to their depth&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;NFs require only an encoder to be learned
+    &lt;ul&gt;
+      &lt;li&gt;VAEs require encoder and decoder networks&lt;/li&gt;
+      &lt;li&gt;GANs require generative and discriminative networks&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;But remember what mother says, “There ain’t no such thing as a free lunch”.&lt;/p&gt;
+
+&lt;p&gt;Some of the downsides of normalizing flows are as follows,&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The requirements of invertibility and efficient Jacobian calculations restrict model architecture
+    &lt;ul&gt;
+      &lt;li&gt;more on this later…&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Less resources/research on NFs compared to other generative models
+    &lt;ul&gt;
+      &lt;li&gt;The reason for this blog!&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;NFs generative results are still behind VAEs and GANs&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Now let us get dirty in some theory!&lt;/p&gt;
+
+&lt;h1 id=&quot;how-normalizing-flows-work&quot;&gt;How Normalizing Flows Work&lt;/h1&gt;
+
+&lt;p&gt;In this section, we understand the heart of Normalizing Flows.&lt;/p&gt;
+
+&lt;h2 id=&quot;probability-distribution-change-of-variables&quot;&gt;Probability Distribution Change of Variables&lt;/h2&gt;
+
+&lt;p&gt;Consider a random variable \(X \in \mathbb{R}^d\) (our data distribution) and an invertable transformation \(f: \mathbb{R}^d \mapsto \mathbb{R}^d\)&lt;/p&gt;
+
+&lt;p&gt;Then there is a random variable \(Z \in \mathbb{R}^d\) which \(f\) maps \(X\) to.&lt;/p&gt;
+
+&lt;p&gt;Furthermore,&lt;/p&gt;
+
+\[P(X = x) = P(f(X) = f(x)) = P(Z = z)\tag{0}\]
+
+&lt;p&gt;Now consider some interval \(\beta\) over \(X\). Then there exists some interval \(\beta^{\prime}\) over \(Z\) such that,&lt;/p&gt;
+
+\[P(X \in \beta) = P(Z \in \beta^{\prime})\tag{1}\]
+
+\[\int_{\beta} p_X dx = \int_{\beta^{\prime}} p_Z dz\tag{2}\]
+
+&lt;p&gt;For the sake of simplicity, we consider a single region.&lt;/p&gt;
+
+\[dx \cdot p_X(x) = dz \cdot p_Z(z) \tag{3}\]
+
+\[p_X(x) = \mid\dfrac{dz}{dx}\mid \cdot p_Z(z) \tag{4}\]
+
+&lt;p&gt;&lt;em&gt;Note:&lt;/em&gt; We apply the absolute value to maintain the equality since by the probability axioms \(p_X\) and \(p_Z\) will always be positive.&lt;/p&gt;
+
+\[p_X(x) = \mid\dfrac{df(x)}{dx}\mid \cdot p_Z(f(x)) \tag{5}\]
+
+\[p_X(x) = \mid det(\dfrac{df}{dx}) \mid \cdot p_Z(f(x)) \tag{6}\]
+
+&lt;p&gt;&lt;em&gt;Note:&lt;/em&gt; We use the determinant to generalize to the multivariate case (\(d &amp;gt; 1\))&lt;/p&gt;
+
+\[\log(p_X(x)) = \log(\mid det(\dfrac{df}{dx}) \mid) + \log(p_Z(f(x))) \tag{7}\]
+
+&lt;p&gt;Tada! To model our random variable \(X\), we need to maximize the right-hand side of equation (7).&lt;/p&gt;
+
+&lt;p&gt;Breaking the equation down:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;\(\log(\mid det(\dfrac{df}{dx}) \mid)\) is the amount of stretch/change \(f\) applies to the probability distribution \(p_X\).
+    &lt;ul&gt;
+      &lt;li&gt;This term is the log determinant of the Jacobian matrix (\(\dfrac{df}{dx}\)). We refer to the determinant of the Jacobian matrix as the Jacobian.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;\(\log(p_Z(f(x)))\) constrains \(f\) to transform \(x\) to the distribution \(p_Z\).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Since there are no constraints on \(Z\) we can choose \(p_Z\)! Usually, we choose \(p_Z\) to be gaussian.&lt;/p&gt;
+
+&lt;p&gt;Now I know what your thinking, as a reader of this blog you strive for greatness and say,&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;‘Brennan, a single function does not satisfy me. I have a hunger for more.’&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;applying-multiple-functions-sequentially&quot;&gt;Applying multiple functions sequentially&lt;/h2&gt;
+
+&lt;p&gt;Fear not my readers! I will show you how we can sequentially apply multiple functions.&lt;/p&gt;
+
+&lt;p&gt;Let \(z_n\) be the result of sequentially applying \(n\) functions to \(x \sim p_X\).&lt;/p&gt;
+
+\[z_n = f_n \circ \dots \circ f_1(x) \tag{8}\]
+
+\[f = f_n \circ \dots \circ f_1 \tag{9}\]
+
+&lt;p&gt;Using the handy dandy chain rule, we can modify equation (7) with equation (8) to get equation (10) as follows.&lt;/p&gt;
+
+\[\log(p_X(x)) = \log(\mid det(\dfrac{df}{dx}) \mid) + \log(p_Z(f(x))) \tag{7}\]
+
+\[\log(p_X(x)) = \log(\prod_{i=1}^{n} \mid det(\dfrac{dz_i}{dz_{i-1}}) \mid) + \log(p_Z(f(x)))\tag{10}\]
+
+&lt;p&gt;Where \(x \triangleq z_0\) for conciseness.&lt;/p&gt;
+
+\[\log(p_X(x)) = \sum_{i=1}^{n} \log(\mid det(\dfrac{dz_i}{dz_{i-1}}) \mid) + \log(p_Z(f(x))) \tag{11}\]
+
+&lt;p&gt;We want the Jacobian term to be easy to compute since we will need to compute it \(n\) times.&lt;/p&gt;
+
+&lt;p&gt;To efficiently compute the Jacobian, the functions \(f_i\) (corresponding to \(z_i\)) are chosen to have a lower or upper triangular Jacobian matrix. Since the determinant of a triangular matrix is the product of its diagonal, which is easy to compute.&lt;/p&gt;
+
+&lt;p&gt;Now that you understand the general theory of Normalizing flows, lets flow through some PyTorch code.&lt;/p&gt;
+
+&lt;h1 id=&quot;the-family-of-flows&quot;&gt;The Family of Flows&lt;/h1&gt;
+
+&lt;p&gt;For this post we will be focusing on, real-valued non-volume preserving flows (R-NVP) &lt;a class=&quot;citation&quot; href=&quot;#dinh2016density&quot;&gt;(Dinh et al., 2016)&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Though there are many other flow functions out and about such as NICE &lt;a class=&quot;citation&quot; href=&quot;#dinh2014nice&quot;&gt;(Dinh et al., 2014)&lt;/a&gt;, and GLOW &lt;a class=&quot;citation&quot; href=&quot;#kingma2018glow&quot;&gt;(Kingma &amp;amp; Dhariwal, 2018)&lt;/a&gt;. For keeners wanting to learn more, I will show you to the ‘More Resources’ section at the bottom of this post which includes blog posts with more flows which may interest you.&lt;/p&gt;
+
+&lt;h1 id=&quot;r-nvp-flows&quot;&gt;R-NVP Flows&lt;/h1&gt;
+
+&lt;p&gt;We consider a single R-NVP function \(f: \mathbb{R}^d \rightarrow \mathbb{R}^d\), with input \(\mathbf{x} \in \mathbb{R}^d\) and output \(\mathbf{z} \in \mathbb{R}^d\).&lt;/p&gt;
+
+&lt;p&gt;To quickly recap, in order to optimize our function \(f\) to model our data distribution \(p_X\), we want to know the forward pass \(f\), and the Jacobian \(\mid det(\dfrac{df}{dx}) \mid\).&lt;/p&gt;
+
+&lt;p&gt;We then will want to know the inverse of our function \(f^{-1}\) so we can transform a sampled latent-value \(z \sim p_Z\) to our data distribution \(p_X\), generating new samples!&lt;/p&gt;
+
+&lt;h2 id=&quot;forward-pass&quot;&gt;Forward Pass&lt;/h2&gt;
+
+\[f(\mathbf{x}) = \mathbf{z}\tag{12}\]
+
+&lt;p&gt;The forward pass is a combination of copying values while stretching and shifting the others. First we choose some arbitrary value \(k\) which satisfies \(0 &amp;lt; k &amp;lt; d\) to split our input.&lt;/p&gt;
+
+&lt;p&gt;R-NVPs forward pass is then the following&lt;/p&gt;
+
+\[\mathbf{z}_{1:k} = \mathbf{x}_{1:k} \tag{13}\]
+
+\[\mathbf{z}_{k+1:d} = \mathbf{x}_{k+1:d} \odot \exp(\sigma(\mathbf{x}_{1:k})) + \mu(\mathbf{x}_{1:k})\tag{14}\]
+
+&lt;p&gt;Where \(\sigma, \mu: \mathbb{R}^k \rightarrow \mathbb{R}^{d-k}\) and are any arbitrary functions. Hence, we will choose \(\sigma\) and \(\mu\) to both be deep neural networks. Below is PyTorch code of a simple implementation.&lt;/p&gt;
+
+&lt;script src=&quot;https://gist.github.com/gebob19/1c10929c2b8a7089321e29c4c33dca4a.js&quot;&gt;&lt;/script&gt;
+
+&lt;h2 id=&quot;log-jacobian&quot;&gt;Log Jacobian&lt;/h2&gt;
+
+&lt;p&gt;The Jacobian matrix \(\dfrac{df}{d\mathbf{x}}\) of this function will be&lt;/p&gt;
+
+\[\begin{bmatrix}I_d &amp;amp; 0 \\
+\frac{d z_{k+1:d}}{d \mathbf{x}_{1:k}} &amp;amp;   \text{diag}(\exp[\sigma(\mathbf{x}_{1:k})])   \end{bmatrix}  \tag{15}\]
+
+&lt;p&gt;The log determinant of such a Jacobian Matrix will be&lt;/p&gt;
+
+\[\log(\det(\dfrac{df}{d\mathbf{x}})) = \log(\prod_{i=1}^{d-k} \mid\exp[\sigma_i(\mathbf{x}_{1:k})]\mid) \tag{16}\]
+
+\[\log(\mid\det(\dfrac{df}{d\mathbf{x}})\mid) = \sum_{i=1}^{d-k} \log(\exp[\sigma_i(\mathbf{x}_{1:k})]) \tag{17}\]
+
+\[\log(\mid\det(\dfrac{df}{d\mathbf{x}})\mid) = \sum_{i=1}^{d-k} \sigma_i(\mathbf{x}_{1:k}) \tag{18}\]
+
+&lt;script src=&quot;https://gist.github.com/gebob19/8dc1fe38b73fd350ff63b81f5947111a.js&quot;&gt;&lt;/script&gt;
+
+&lt;h2 id=&quot;inverse&quot;&gt;Inverse&lt;/h2&gt;
+
+\[f^{-1}(\mathbf{z}) = \mathbf{x}\tag{19}\]
+
+&lt;p&gt;One of the benefits of R-NVPs compared to other flows is the ease of inverting \(f\) into \(f^{-1}\), which we formulate below using the forward pass of equation (14)&lt;/p&gt;
+
+\[\mathbf{x}_{1:k} = \mathbf{z}_{1:k} \tag{20}\]
+
+\[\mathbf{x}_{k+1:d} = (\mathbf{z}_{k+1:d} - \mu(\mathbf{x}_{1:k})) \odot \exp(-\sigma(\mathbf{x}_{1:k})) \tag{21}\]
+
+\[\Leftrightarrow \mathbf{x}_{k+1:d} = (\mathbf{z}_{k+1:d} - \mu(\mathbf{z}_{1:k})) \odot \exp(-\sigma(\mathbf{z}_{1:k})) \tag{22}\]
+
+&lt;script src=&quot;https://gist.github.com/gebob19/4458074fa1e804ad14e704a4e246c3ec.js&quot;&gt;&lt;/script&gt;
+
+&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+
+&lt;p&gt;And voilà, the recipe for R-NVP is complete!&lt;/p&gt;
+
+&lt;p&gt;To summarize we now know how to compute \(f(\mathbf{x})\), \(\log(\mid\det(\dfrac{df}{d\mathbf{x}})\mid)\), and \(f^{-1}(\mathbf{z})\).&lt;/p&gt;
+
+&lt;p&gt;Below is the full jupyter notebook with PyTorch code for model optimization and data generation.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/gebob19/introduction_to_normalizing_flows&quot;&gt;Jupyter Notebook&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Note:&lt;/em&gt; In the notebook the multilayer R-NVP flips the input before a forward/inverse pass for a more expressive model.&lt;/p&gt;
+
+&lt;h3 id=&quot;optimizing-model&quot;&gt;Optimizing Model&lt;/h3&gt;
+
+\[\log(p_X(x)) = \log(\mid det(\dfrac{df}{dx}) \mid) + \log(p_Z(f(x)))\]
+
+\[\log(p_X(x)) = \sum_{i=1}^{n} \log(\mid det(\dfrac{dz_i}{dz_{i-1}}) \mid) + \log(p_Z(f(x)))\]
+
+&lt;script src=&quot;https://gist.github.com/gebob19/7440c0c0473749f7c3fed67ee3e25962.js&quot;&gt;&lt;/script&gt;
+
+&lt;h3 id=&quot;generating-data-from-model&quot;&gt;Generating Data from Model&lt;/h3&gt;
+
+\[z \sim p_Z\]
+
+\[x_{gen} = f^{-1}(z)\]
+
+&lt;script src=&quot;https://gist.github.com/gebob19/f453a654da8ff5ecd41978b9ce6b9fc8.js&quot;&gt;&lt;/script&gt;
+
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;In summary, we learned how to model a data distribution to a chosen latent-distribution using an invertible function \(f\). We used the change of variables formula to discover that to model our data we must maximize the Jacobian of \(f\) while also constraining \(f\) to our latent-distribution. We then extended this notion to sequentially applying multiple functions \(f_n \circ \dots \circ f_1(x)\). Lastly, we learned about the theory and implementation of the R-NVP flow.&lt;/p&gt;
+
+&lt;p&gt;Thanks for reading!&lt;/p&gt;
+
+&lt;p&gt;Question? Criticism? Phrase? Advice? Topic you want to be covered? Leave a comment in the section below!&lt;/p&gt;
+
+&lt;p&gt;Want more content? Follow me on &lt;a href=&quot;https://twitter.com/brennangebotys&quot;&gt;Twitter&lt;/a&gt;!&lt;/p&gt;
+
+&lt;h1 id=&quot;references&quot;&gt;References&lt;/h1&gt;
+
+&lt;ol class=&quot;bibliography&quot;&gt;&lt;li&gt;&lt;span id=&quot;rezende2015variational&quot;&gt;Rezende, D. J., &amp;amp; Mohamed, S. (2015). Variational inference with normalizing flows. &lt;i&gt;ArXiv Preprint ArXiv:1505.05770&lt;/i&gt;.&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;vaebayes&quot;&gt;Kingma, D. P., &amp;amp; Welling, M. (2013). &lt;i&gt;Auto-Encoding Variational Bayes&lt;/i&gt;.&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;NIPS2014_5423&quot;&gt;Goodfellow, I., Pouget-Abadie, J., Mirza, M., Xu, B., Warde-Farley, D., Ozair, S., Courville, A., &amp;amp; Bengio, Y. (2014). Generative Adversarial Nets. In Z. Ghahramani, M. Welling, C. Cortes, N. D. Lawrence, &amp;amp; K. Q. Weinberger (Eds.), &lt;i&gt;Advances in Neural Information Processing Systems 27&lt;/i&gt; (pp. 2672–2680). Curran Associates, Inc. http://papers.nips.cc/paper/5423-generative-adversarial-nets.pdf&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;kingma2018glow&quot;&gt;Kingma, D. P., &amp;amp; Dhariwal, P. (2018). Glow: Generative flow with invertible 1x1 convolutions. &lt;i&gt;Advances in Neural Information Processing Systems&lt;/i&gt;, 10215–10224.&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;dinh2016density&quot;&gt;Dinh, L., Sohl-Dickstein, J., &amp;amp; Bengio, S. (2016). Density estimation using real nvp. &lt;i&gt;ArXiv Preprint ArXiv:1605.08803&lt;/i&gt;.&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;dinh2014nice&quot;&gt;Dinh, L., Krueger, D., &amp;amp; Bengio, Y. (2014). Nice: Non-linear independent components estimation. &lt;i&gt;ArXiv Preprint ArXiv:1410.8516&lt;/i&gt;.&lt;/span&gt;&lt;/li&gt;&lt;/ol&gt;
+
+&lt;h2 id=&quot;more-resources&quot;&gt;More Resources&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Indepth analysis of more recent flows: &lt;a href=&quot;https://lilianweng.github.io/lil-log/2018/10/13/flow-based-deep-generative-models.html&quot;&gt;https://lilianweng.github.io/lil-log/2018/10/13/flow-based-deep-generative-models.html&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;More flows and their equations: &lt;a href=&quot;http://akosiorek.github.io/ml/2018/04/03/norm_flows.html&quot;&gt;http://akosiorek.github.io/ml/2018/04/03/norm_flows.html&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Tensorflow Normalizing Flow Tutorial: &lt;a href=&quot;https://blog.evjang.com/2018/01/nf1.html&quot;&gt;https://blog.evjang.com/2018/01/nf1.html&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Video resource on the change of variables formulation: &lt;a href=&quot;https://www.youtube.com/watch?v=OeD3RJpeb-w&quot;&gt;https://www.youtube.com/watch?v=OeD3RJpeb-w&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Wed, 17 Jul 2019 00:00:00 -0400</pubDate>
+        <link>/19717.html</link>
+        <guid isPermaLink="true">/19717.html</guid>
+        
+        
+        <category>example</category>
+        
+      </item>
+    
+  </channel>
+</rss>

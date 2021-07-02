@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+  <title>Going with the Flow: An Introduction to Normalizing Flows</title>
+  <meta name="description" content="">
+  <meta name="author" content="robotkang">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Going with the Flow: An Introduction to Normalizing Flows">
+  <meta name="twitter:description" content="">
+  
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Going with the Flow: An Introduction to Normalizing Flows">
+  <meta property="og:description" content="">
+  
+  <link rel="icon" type="image/png" href="/images/favicon.png" />
+  <link href="/images/favicon.png" rel="shortcut icon" type="image/png">
+  
+  <link rel="stylesheet" href="/css/main.css">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <link rel="canonical" href="/19717.html">
+  <link rel="alternate" type="application/rss+xml" title="Brennan Gebotys" href="/feed.xml">
+  
+  <!-- <meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" />
+   -->
+<!-- 自动将http的不安全请求升级为https -->
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
+<!-- 修正文章访问量统计、20201009 -->
+  <meta name="referrer" content="no-referrer-when-downgrade">
+
+<!-- Valine Comment -->
+    
+
+<!-- google ads -->
+    <!-- <script data-ad-client="ca-pub-7648908799310520" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> -->
+
+</head>
+
+
+  <body style="height:1000px;">
+
+    <span class="mobile btn-mobile-menu">        
+      <div class="nav_container">
+         <nav class="nav-menu-item" style = "float:right">
+            <i class="nav-menu-item">
+              <a href="/#blog" title="" class="blog-button">  Blog
+              </a>
+            </i>
+            
+                <i class="nav-menu-item">
+
+                  <a href="/about" title="about" class="btn-mobile-menu__icon">
+                      About
+                  </a>
+                </i>
+            
+          </nav>
+      </div>
+    </span>
+
+
+    <header class="panel-cover panel-cover--collapsed">
+<style type="text/css">
+
+/* body {background-image:url(http://omjh2j5h3.bkt.clouddn.com/background.png);} */
+
+p.flower {background-image: url(http://omjh2j5h3.bkt.clouddn.com/background-cover.jpg); padding: 20px;}
+</style>
+  
+  <div class="panel-main">
+
+    <div class="panel-main__inner panel-inverted">
+    <div class="panel-main__content">
+        <!-- 头像效果-start -->
+        <div class="ih-item circle effect right_to_left">            
+            <!-- <a href="/#blog" title="Brennan Gebotys" class="blog-button"> -->
+            <a href="/" title="Brennan Gebotys" class="blog-button">
+                <div class="img"><img src="/images/avatar.jpg" alt="img"></div>
+                <div class="info">
+                    <div class="info-back">
+                        <h1> 
+                            
+                                Brennan
+                            
+                        </h1>
+                        <p>
+                           
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!-- 头像效果-end -->
+        <h1 class="panel-cover__title panel-title"><a href="/#blog" title="link to homepage for Brennan Gebotys" class="blog-button">Brennan Gebotys</a></h1>
+        
+        <span class="panel-cover__subtitle panel-subtitle">Welcome!</span>
+        
+        <hr class="panel-cover__divider" style="height:1px;border:none;border-top:1px solid #555555;"/>
+        <p class="panel-cover__description">Machine Learning, Statistics, and All Things Cool</p>
+        <hr class="panel-cover__divider panel-cover__divider--secondary" style="height:1px;border:none;border-top:1px solid #555555;"/>
+        
+        
+        
+
+        <div class="navigation-wrapper">
+          <div>
+            <nav class="cover-navigation cover-navigation--primary">
+              <ul class="navigation">
+                <li class="navigation__item"><a href="/#blog" title="" class="blog-button">Blog</a></li>
+                
+                  <li class="navigation__item"><a href="/about" title="about">About</a></li>
+                
+              </ul>
+            </nav>
+          </div>          
+        </div>
+
+
+        </div>
+      </div>
+    </div>
+    
+    
+    <div class="panel-cover--overlay cover-disabled"></div>
+    
+  </div>
+</header>
+
+
+    <div class="content-wrapper">
+        <div class="content-wrapper__inner">
+            <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- latex公式支持代码 end -->
+
+<!-- 代码高亮设置 begin 
+<link rel="stylesheet" href="/css/pygments-default.css">
+ 代码高亮设置 end -->
+
+
+<article class="post-container post-container--single" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post-header">
+    <h1 class="post-title">Going with the Flow: An Introduction to Normalizing Flows</h1>
+    <div class="post-meta" style="color:#C3C3C3;border-bottom-width: 1px;border-bottom-style: dashed;padding-bottom: 0px;padding-top: 5px;">
+      <!-- <img src="/images/calendar.png" width="20px" style="vertical-align:text-top;"/>  -->
+      <time datetime="2019-07-17 00:00:00 -0400" itemprop="datePublished" class="post-meta__date date">2019-07-17</time>  
+         
+     <!-- <span id="busuanzi_container_page_pv">
+  	 阅读：<span id="busuanzi_value_page_pv"></span>次 -->
+	 <!-- </span> -->
+    </p>
+    </div>
+  </header>
+
+  <section class="post">
+
+    <p><img src="https://gebob19.github.io/assets/norm_flow/nf.png" alt="alt text" title="Normalizing Flows (from R-NVP Paper)" /></p>
+
+<p>Normalizing Flows (NFs) <a class="citation" href="#rezende2015variational">(Rezende &amp; Mohamed, 2015)</a> learn an <em>invertible</em> mapping \(f: X \rightarrow Z\), where \(X\) is our data distribution and \(Z\) is a chosen latent-distribution.</p>
+
+<p>Normalizing Flows are part of the generative model family, which includes Variational Autoencoders (VAEs) <a class="citation" href="#vaebayes">(Kingma &amp; Welling, 2013)</a>, and Generative Adversarial Networks (GANs) <a class="citation" href="#NIPS2014_5423">(Goodfellow et al., 2014)</a>. Once we learn the mapping \(f\), we generate data by sampling \(z \sim p_Z\) and then applying the inverse transformation, \(f^{-1}(z) = x_{gen}\).</p>
+
+<p><em>Note</em>: \(p_Z(z)\) is the probability density of sampling \(z\) under the distribution \(Z\).</p>
+
+<p>In this blog to understand normalizing flows better, we will cover the algorithm’s theory and implement a flow model in PyTorch. But first, let us flow through the advantages and disadvantages of normalizing flows.</p>
+
+<p><em>Note:</em> If you are not interested in the comparison between generative models you can skip to ‘How Normalizing Flows Work’</p>
+
+<h2 id="why-normalizing-flows">Why Normalizing Flows</h2>
+
+<p>With the amazing results shown by VAEs and GANs, why would you want to use Normalizing flows? We list the advantages below</p>
+
+<p><em>Note</em>: Most advantages are from the GLOW paper <a class="citation" href="#kingma2018glow">(Kingma &amp; Dhariwal, 2018)</a></p>
+
+<ul>
+  <li>NFs optimize the exact log-likelihood of the data, log(\(p_X\))
+    <ul>
+      <li>VAEs optimize the lower bound (ELBO)</li>
+      <li>GANs learn to fool a discriminator network</li>
+    </ul>
+  </li>
+  <li>NFs infer exact latent-variable values \(z\), which are useful for downstream tasks
+    <ul>
+      <li>The VAE infers a distribution over latent-variable values</li>
+      <li>GANs do not have a latent-distribution</li>
+    </ul>
+  </li>
+  <li>Potential for memory savings, with NFs gradient computations scaling constant to their depth
+    <ul>
+      <li>Both VAE’s and GAN’s gradient computations scale linearly to their depth</li>
+    </ul>
+  </li>
+  <li>NFs require only an encoder to be learned
+    <ul>
+      <li>VAEs require encoder and decoder networks</li>
+      <li>GANs require generative and discriminative networks</li>
+    </ul>
+  </li>
+</ul>
+
+<p>But remember what mother says, “There ain’t no such thing as a free lunch”.</p>
+
+<p>Some of the downsides of normalizing flows are as follows,</p>
+
+<ul>
+  <li>The requirements of invertibility and efficient Jacobian calculations restrict model architecture
+    <ul>
+      <li>more on this later…</li>
+    </ul>
+  </li>
+  <li>Less resources/research on NFs compared to other generative models
+    <ul>
+      <li>The reason for this blog!</li>
+    </ul>
+  </li>
+  <li>NFs generative results are still behind VAEs and GANs</li>
+</ul>
+
+<p>Now let us get dirty in some theory!</p>
+
+<h1 id="how-normalizing-flows-work">How Normalizing Flows Work</h1>
+
+<p>In this section, we understand the heart of Normalizing Flows.</p>
+
+<h2 id="probability-distribution-change-of-variables">Probability Distribution Change of Variables</h2>
+
+<p>Consider a random variable \(X \in \mathbb{R}^d\) (our data distribution) and an invertable transformation \(f: \mathbb{R}^d \mapsto \mathbb{R}^d\)</p>
+
+<p>Then there is a random variable \(Z \in \mathbb{R}^d\) which \(f\) maps \(X\) to.</p>
+
+<p>Furthermore,</p>
+
+\[P(X = x) = P(f(X) = f(x)) = P(Z = z)\tag{0}\]
+
+<p>Now consider some interval \(\beta\) over \(X\). Then there exists some interval \(\beta^{\prime}\) over \(Z\) such that,</p>
+
+\[P(X \in \beta) = P(Z \in \beta^{\prime})\tag{1}\]
+
+\[\int_{\beta} p_X dx = \int_{\beta^{\prime}} p_Z dz\tag{2}\]
+
+<p>For the sake of simplicity, we consider a single region.</p>
+
+\[dx \cdot p_X(x) = dz \cdot p_Z(z) \tag{3}\]
+
+\[p_X(x) = \mid\dfrac{dz}{dx}\mid \cdot p_Z(z) \tag{4}\]
+
+<p><em>Note:</em> We apply the absolute value to maintain the equality since by the probability axioms \(p_X\) and \(p_Z\) will always be positive.</p>
+
+\[p_X(x) = \mid\dfrac{df(x)}{dx}\mid \cdot p_Z(f(x)) \tag{5}\]
+
+\[p_X(x) = \mid det(\dfrac{df}{dx}) \mid \cdot p_Z(f(x)) \tag{6}\]
+
+<p><em>Note:</em> We use the determinant to generalize to the multivariate case (\(d &gt; 1\))</p>
+
+\[\log(p_X(x)) = \log(\mid det(\dfrac{df}{dx}) \mid) + \log(p_Z(f(x))) \tag{7}\]
+
+<p>Tada! To model our random variable \(X\), we need to maximize the right-hand side of equation (7).</p>
+
+<p>Breaking the equation down:</p>
+<ul>
+  <li>\(\log(\mid det(\dfrac{df}{dx}) \mid)\) is the amount of stretch/change \(f\) applies to the probability distribution \(p_X\).
+    <ul>
+      <li>This term is the log determinant of the Jacobian matrix (\(\dfrac{df}{dx}\)). We refer to the determinant of the Jacobian matrix as the Jacobian.</li>
+    </ul>
+  </li>
+  <li>\(\log(p_Z(f(x)))\) constrains \(f\) to transform \(x\) to the distribution \(p_Z\).</li>
+</ul>
+
+<p>Since there are no constraints on \(Z\) we can choose \(p_Z\)! Usually, we choose \(p_Z\) to be gaussian.</p>
+
+<p>Now I know what your thinking, as a reader of this blog you strive for greatness and say,</p>
+<blockquote>
+  <p>‘Brennan, a single function does not satisfy me. I have a hunger for more.’</p>
+</blockquote>
+
+<h2 id="applying-multiple-functions-sequentially">Applying multiple functions sequentially</h2>
+
+<p>Fear not my readers! I will show you how we can sequentially apply multiple functions.</p>
+
+<p>Let \(z_n\) be the result of sequentially applying \(n\) functions to \(x \sim p_X\).</p>
+
+\[z_n = f_n \circ \dots \circ f_1(x) \tag{8}\]
+
+\[f = f_n \circ \dots \circ f_1 \tag{9}\]
+
+<p>Using the handy dandy chain rule, we can modify equation (7) with equation (8) to get equation (10) as follows.</p>
+
+\[\log(p_X(x)) = \log(\mid det(\dfrac{df}{dx}) \mid) + \log(p_Z(f(x))) \tag{7}\]
+
+\[\log(p_X(x)) = \log(\prod_{i=1}^{n} \mid det(\dfrac{dz_i}{dz_{i-1}}) \mid) + \log(p_Z(f(x)))\tag{10}\]
+
+<p>Where \(x \triangleq z_0\) for conciseness.</p>
+
+\[\log(p_X(x)) = \sum_{i=1}^{n} \log(\mid det(\dfrac{dz_i}{dz_{i-1}}) \mid) + \log(p_Z(f(x))) \tag{11}\]
+
+<p>We want the Jacobian term to be easy to compute since we will need to compute it \(n\) times.</p>
+
+<p>To efficiently compute the Jacobian, the functions \(f_i\) (corresponding to \(z_i\)) are chosen to have a lower or upper triangular Jacobian matrix. Since the determinant of a triangular matrix is the product of its diagonal, which is easy to compute.</p>
+
+<p>Now that you understand the general theory of Normalizing flows, lets flow through some PyTorch code.</p>
+
+<h1 id="the-family-of-flows">The Family of Flows</h1>
+
+<p>For this post we will be focusing on, real-valued non-volume preserving flows (R-NVP) <a class="citation" href="#dinh2016density">(Dinh et al., 2016)</a>.</p>
+
+<p>Though there are many other flow functions out and about such as NICE <a class="citation" href="#dinh2014nice">(Dinh et al., 2014)</a>, and GLOW <a class="citation" href="#kingma2018glow">(Kingma &amp; Dhariwal, 2018)</a>. For keeners wanting to learn more, I will show you to the ‘More Resources’ section at the bottom of this post which includes blog posts with more flows which may interest you.</p>
+
+<h1 id="r-nvp-flows">R-NVP Flows</h1>
+
+<p>We consider a single R-NVP function \(f: \mathbb{R}^d \rightarrow \mathbb{R}^d\), with input \(\mathbf{x} \in \mathbb{R}^d\) and output \(\mathbf{z} \in \mathbb{R}^d\).</p>
+
+<p>To quickly recap, in order to optimize our function \(f\) to model our data distribution \(p_X\), we want to know the forward pass \(f\), and the Jacobian \(\mid det(\dfrac{df}{dx}) \mid\).</p>
+
+<p>We then will want to know the inverse of our function \(f^{-1}\) so we can transform a sampled latent-value \(z \sim p_Z\) to our data distribution \(p_X\), generating new samples!</p>
+
+<h2 id="forward-pass">Forward Pass</h2>
+
+\[f(\mathbf{x}) = \mathbf{z}\tag{12}\]
+
+<p>The forward pass is a combination of copying values while stretching and shifting the others. First we choose some arbitrary value \(k\) which satisfies \(0 &lt; k &lt; d\) to split our input.</p>
+
+<p>R-NVPs forward pass is then the following</p>
+
+\[\mathbf{z}_{1:k} = \mathbf{x}_{1:k} \tag{13}\]
+
+\[\mathbf{z}_{k+1:d} = \mathbf{x}_{k+1:d} \odot \exp(\sigma(\mathbf{x}_{1:k})) + \mu(\mathbf{x}_{1:k})\tag{14}\]
+
+<p>Where \(\sigma, \mu: \mathbb{R}^k \rightarrow \mathbb{R}^{d-k}\) and are any arbitrary functions. Hence, we will choose \(\sigma\) and \(\mu\) to both be deep neural networks. Below is PyTorch code of a simple implementation.</p>
+
+<script src="https://gist.github.com/gebob19/1c10929c2b8a7089321e29c4c33dca4a.js"></script>
+
+<h2 id="log-jacobian">Log Jacobian</h2>
+
+<p>The Jacobian matrix \(\dfrac{df}{d\mathbf{x}}\) of this function will be</p>
+
+\[\begin{bmatrix}I_d &amp; 0 \\
+\frac{d z_{k+1:d}}{d \mathbf{x}_{1:k}} &amp;   \text{diag}(\exp[\sigma(\mathbf{x}_{1:k})])   \end{bmatrix}  \tag{15}\]
+
+<p>The log determinant of such a Jacobian Matrix will be</p>
+
+\[\log(\det(\dfrac{df}{d\mathbf{x}})) = \log(\prod_{i=1}^{d-k} \mid\exp[\sigma_i(\mathbf{x}_{1:k})]\mid) \tag{16}\]
+
+\[\log(\mid\det(\dfrac{df}{d\mathbf{x}})\mid) = \sum_{i=1}^{d-k} \log(\exp[\sigma_i(\mathbf{x}_{1:k})]) \tag{17}\]
+
+\[\log(\mid\det(\dfrac{df}{d\mathbf{x}})\mid) = \sum_{i=1}^{d-k} \sigma_i(\mathbf{x}_{1:k}) \tag{18}\]
+
+<script src="https://gist.github.com/gebob19/8dc1fe38b73fd350ff63b81f5947111a.js"></script>
+
+<h2 id="inverse">Inverse</h2>
+
+\[f^{-1}(\mathbf{z}) = \mathbf{x}\tag{19}\]
+
+<p>One of the benefits of R-NVPs compared to other flows is the ease of inverting \(f\) into \(f^{-1}\), which we formulate below using the forward pass of equation (14)</p>
+
+\[\mathbf{x}_{1:k} = \mathbf{z}_{1:k} \tag{20}\]
+
+\[\mathbf{x}_{k+1:d} = (\mathbf{z}_{k+1:d} - \mu(\mathbf{x}_{1:k})) \odot \exp(-\sigma(\mathbf{x}_{1:k})) \tag{21}\]
+
+\[\Leftrightarrow \mathbf{x}_{k+1:d} = (\mathbf{z}_{k+1:d} - \mu(\mathbf{z}_{1:k})) \odot \exp(-\sigma(\mathbf{z}_{1:k})) \tag{22}\]
+
+<script src="https://gist.github.com/gebob19/4458074fa1e804ad14e704a4e246c3ec.js"></script>
+
+<h2 id="summary">Summary</h2>
+
+<p>And voilà, the recipe for R-NVP is complete!</p>
+
+<p>To summarize we now know how to compute \(f(\mathbf{x})\), \(\log(\mid\det(\dfrac{df}{d\mathbf{x}})\mid)\), and \(f^{-1}(\mathbf{z})\).</p>
+
+<p>Below is the full jupyter notebook with PyTorch code for model optimization and data generation.</p>
+
+<p><a href="https://github.com/gebob19/introduction_to_normalizing_flows">Jupyter Notebook</a></p>
+
+<p><em>Note:</em> In the notebook the multilayer R-NVP flips the input before a forward/inverse pass for a more expressive model.</p>
+
+<h3 id="optimizing-model">Optimizing Model</h3>
+
+\[\log(p_X(x)) = \log(\mid det(\dfrac{df}{dx}) \mid) + \log(p_Z(f(x)))\]
+
+\[\log(p_X(x)) = \sum_{i=1}^{n} \log(\mid det(\dfrac{dz_i}{dz_{i-1}}) \mid) + \log(p_Z(f(x)))\]
+
+<script src="https://gist.github.com/gebob19/7440c0c0473749f7c3fed67ee3e25962.js"></script>
+
+<h3 id="generating-data-from-model">Generating Data from Model</h3>
+
+\[z \sim p_Z\]
+
+\[x_{gen} = f^{-1}(z)\]
+
+<script src="https://gist.github.com/gebob19/f453a654da8ff5ecd41978b9ce6b9fc8.js"></script>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>In summary, we learned how to model a data distribution to a chosen latent-distribution using an invertible function \(f\). We used the change of variables formula to discover that to model our data we must maximize the Jacobian of \(f\) while also constraining \(f\) to our latent-distribution. We then extended this notion to sequentially applying multiple functions \(f_n \circ \dots \circ f_1(x)\). Lastly, we learned about the theory and implementation of the R-NVP flow.</p>
+
+<p>Thanks for reading!</p>
+
+<p>Question? Criticism? Phrase? Advice? Topic you want to be covered? Leave a comment in the section below!</p>
+
+<p>Want more content? Follow me on <a href="https://twitter.com/brennangebotys">Twitter</a>!</p>
+
+<h1 id="references">References</h1>
+
+<ol class="bibliography"><li><span id="rezende2015variational">Rezende, D. J., &amp; Mohamed, S. (2015). Variational inference with normalizing flows. <i>ArXiv Preprint ArXiv:1505.05770</i>.</span></li>
+<li><span id="vaebayes">Kingma, D. P., &amp; Welling, M. (2013). <i>Auto-Encoding Variational Bayes</i>.</span></li>
+<li><span id="NIPS2014_5423">Goodfellow, I., Pouget-Abadie, J., Mirza, M., Xu, B., Warde-Farley, D., Ozair, S., Courville, A., &amp; Bengio, Y. (2014). Generative Adversarial Nets. In Z. Ghahramani, M. Welling, C. Cortes, N. D. Lawrence, &amp; K. Q. Weinberger (Eds.), <i>Advances in Neural Information Processing Systems 27</i> (pp. 2672–2680). Curran Associates, Inc. http://papers.nips.cc/paper/5423-generative-adversarial-nets.pdf</span></li>
+<li><span id="kingma2018glow">Kingma, D. P., &amp; Dhariwal, P. (2018). Glow: Generative flow with invertible 1x1 convolutions. <i>Advances in Neural Information Processing Systems</i>, 10215–10224.</span></li>
+<li><span id="dinh2016density">Dinh, L., Sohl-Dickstein, J., &amp; Bengio, S. (2016). Density estimation using real nvp. <i>ArXiv Preprint ArXiv:1605.08803</i>.</span></li>
+<li><span id="dinh2014nice">Dinh, L., Krueger, D., &amp; Bengio, Y. (2014). Nice: Non-linear independent components estimation. <i>ArXiv Preprint ArXiv:1410.8516</i>.</span></li></ol>
+
+<h2 id="more-resources">More Resources</h2>
+
+<ul>
+  <li>
+    <p>Indepth analysis of more recent flows: <a href="https://lilianweng.github.io/lil-log/2018/10/13/flow-based-deep-generative-models.html">https://lilianweng.github.io/lil-log/2018/10/13/flow-based-deep-generative-models.html</a></p>
+  </li>
+  <li>
+    <p>More flows and their equations: <a href="http://akosiorek.github.io/ml/2018/04/03/norm_flows.html">http://akosiorek.github.io/ml/2018/04/03/norm_flows.html</a></p>
+  </li>
+  <li>
+    <p>Tensorflow Normalizing Flow Tutorial: <a href="https://blog.evjang.com/2018/01/nf1.html">https://blog.evjang.com/2018/01/nf1.html</a></p>
+  </li>
+  <li>
+    <p>Video resource on the change of variables formulation: <a href="https://www.youtube.com/watch?v=OeD3RJpeb-w">https://www.youtube.com/watch?v=OeD3RJpeb-w</a></p>
+  </li>
+</ul>
+
+  </section>
+</article>
+
+
+            
+    <section class="footer">
+    <footer>
+        <div class = "footer_div">  
+        <nav class="cover-navigation navigation--social">
+          <ul class="navigation">
+
+          
+
+          
+          <!-- Github -->
+          <li class="navigation__item_social">
+            <a href="https://github.com/gebob19" title="@gebob19 的 Github" target="_blank">
+              <i class='social fa fa-github fa-2x'></i>
+              <span class="label">Github</span>
+            </a>
+          </li>
+          
+          
+          
+          <!-- Twitter -->
+          <li class="navigation__item_social">
+            <a href="http://twitter.com/brennangebotys" title="@brennangebotys" target="_blank">
+              <i class='social fa fa-twitter fa-2x'></i>
+              <span class="label">Twitter</span>
+            </a>
+          </li>
+          
+
+          
+
+          <!-- RSS
+          <li class="navigation__item_social">
+            <a href="/feed.xml" rel="author" title="RSS" target="_blank">
+              <i class='social fa fa-rss fa-2x'></i>
+              <span class="label">RSS</span>
+            </a>
+          </li> -->
+
+          
+
+          </ul>
+        </nav>
+
+        </div>
+
+
+
+        <div class = "footer_div">  
+           <p class="copyright text-muted">
+            Copyright &copy; Brennan Gebotys 2017-2021 Theme by <a href="https://robotkang.cc/">Robotkang</a>
+            <!--<iframe
+                style="margin-left: 2px; margin-bottom:-5px;"
+                frameborder="0" scrolling="0" width="91px" height="20px"
+                src="https://ghbtns.com/github-btn.html?user=MengZheK&repo=BlogDemo&type=star&count=true" >
+            </iframe>|-->
+            
+<!-- cnzz -->
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1261874359'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s95.cnzz.com/z_stat.php%3Fid%3D1261874359%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+
+
+<!-- cc -->
+      	
+
+<!-- 访问统计 -->
+
+<div align="right">
+    			
+<link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+<!--  
+Total <span id="busuanzi_value_site_pv"></span> views.  
+您是我的第<span id="busuanzi_value_site_uv"></span> 个访客..
+<span id="busuanzi_value_page_pv"></span> Hits
+  
+          </span>
+        </div>
+        <div>
+    </footer>
+</section>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script> -->
+
+
+
+
+
+        </div>
+    
+
+    </div>
+    
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
+
+<script type="text/javascript" src="/js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+    
+
+<!--博客鼠标点击显示文字JS特效代码 -->
+
+
+<link rel="stylesheet" href="/assets/katex/katex.min.css">
+<script defer src="/assets/katex/katex.min.js"></script>
+<script defer src="/assets/katex/contrib/mathtex-script-type.min.js"></script>
+
+
+<script type="text/javascript">
+
+// var a_idx = 0;
+// jQuery(document).ready(function($) {
+//  $("body").click(function(e) {
+//  var a = new Array("Woo", "Woot", "Beep", "Boop", "Great", "Fantastic", "Awesome");
+//  var $i = $("<span/>").text(a[a_idx]);
+//  a_idx = (a_idx + 1) % a.length;
+//  var x = e.pageX,
+//  y = e.pageY;
+//  $i.css({
+//  "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+//  "top": y - 20,
+//  "left": x,
+//  "position": "absolute",
+//  "font-weight": "bold",
+// //  "color": "#ff6651"
+//  "color": "#3795E5"
+//  });
+//  $("body").append($i);
+//  $i.animate({
+//  "top": y - 180,
+//  "opacity": 0
+//  },
+//  1500,
+//  function() {
+//  $i.remove();
+//  });
+//  });
+// });
+// </script>
+
+
+
+</body>
+
+</html>
