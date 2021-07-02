@@ -1,27 +1,27 @@
 # Basic
-title: Robotkang
-subtitle: 欢迎来到我的个人网站
-description: 科技、生活、音乐、人生
+title: Brennan Gebotys
+subtitle: Welcome!
+description: Machine Learning, Statistics, and All Things Cool 
 # 头像里面的标题
-avatarTitle: RobotKang
+avatarTitle: Brennan 
 # 头像里面的描述
-avatarDesc: 机器人赛事
-url: "https://robotkang.cc"
+# avatarDesc: 机器人赛事
+# url: "https://robotkang.cc"
 
 # Comment
 comment:
     provider: duoshuo
     duoshuo:
-    short_name: robotkang
+    short_name: 
 
 # Social
 social:
-    weibo: 123456789
-    weixing: kang1390305137 
-    github: MengZheK
-    # twitter: 
-    mail: robotkang@foxmail.com
-    csdn: robotkang
+    # weibo: 123456789
+    # weixing: kang1390305137 
+    github: gebob19
+    twitter: brennangebotys
+    # mail: robotkang@foxmail.com
+    # csdn: robotkang
 
 
 # 《----------------- 上面的信息修改成你自己的 ---------------------------》
@@ -56,21 +56,27 @@ cover_color:
 
 # The blog button should not be removed.
 blog_button:
-    title: 博客主页
+    title: Blog
 
 # Navigation buttons in the front page.s
 nav:
-    - {title: 所有文章, description: archive, url: '/archive'}   
-    - {title: 标签, description: tags, url: '/tags'}   
-    - {title: 留言, description: liuyan, url: '/liuyan'}
-    - {title: 资源, description: ziyuan, url: '/ziyuan'}
-    - {title: 关于我, description: about, url: '/about'}
+    # - {title: 所有文章, description: archive, url: '/archive'}   
+    # - {title: 标签, description: tags, url: '/tags'}   
+    # - {title: 留言, description: liuyan, url: '/liuyan'}
+    # - {title: 资源, description: ziyuan, url: '/ziyuan'}
+    - {title: About, description: about, url: '/about'}
 
-          
-    
+plugins:
+ - jekyll-feed
+ - jekyll-default-layout
+ - jekyll-gist
+ - jekyll-scholar
+ - jekyll-seo-tag
+ - jekyll-sitemap
+ - jekyll-paginate 
 
 # Pagination
-gems: [jekyll-paginate]
+# gems: [jekyll-paginate]
 paginate: 20
 paginate_path: "page/:num/"
 

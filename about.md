@@ -1,8 +1,14 @@
 ---
 layout: page
-title: 关于我「ABOUT ME」 
+title: About Me 
 date: 2021-05-04
 ---
+
+I enjoy writing about things that I find cool :) 
+
+Currently completing my masters in machine learning at the University of Waterloo.
+
+<!-- 
 <a href="/photos/" target="_blank"><img src="https://robotkang-1257995526.cos.ap-chengdu.myqcloud.com/%E5%A4%A9%E7%AD%96.png" width="150" height="150" alt="photos"/></a>
 
 
@@ -88,6 +94,6 @@ I'm a single-dog.  But codes and godgirl are my favorite.  Life is colorful, thi
 <div class="divcss5-right">
 	<a href="https://robotkang.cc" target="_blank"><img src="https://robotkang-1257995526.cos.ap-chengdu.myqcloud.com/%E4%BA%A2%E5%BF%97%E5%86%9B%E7%AD%BE%E5%90%8D01.png
 " width="80" height="70" alt="kang"/></a>
-</div> 
+</div>  -->
 
 

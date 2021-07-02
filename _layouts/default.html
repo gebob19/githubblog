@@ -5,8 +5,6 @@
 
   <body style="height:1000px;">
 
-  
-
     <span class="mobile btn-mobile-menu">        
       <div class="nav_container">
          <nav class="nav-menu-item" style = "float:right">
@@ -45,36 +43,43 @@
 
 <!--博客鼠标点击显示文字JS特效代码 -->
 
+{% if page.mathjax or site.mathjax %}
+<link rel="stylesheet" href="{{ "/assets/katex/katex.min.css" | relative_url }}">
+<script defer src="{{ "/assets/katex/katex.min.js" | relative_url }}"></script>
+<script defer src="{{ "/assets/katex/contrib/mathtex-script-type.min.js" | relative_url }}"></script>
+{% endif %}
+
 <script type="text/javascript">
 
-var a_idx = 0;
-jQuery(document).ready(function($) {
- $("body").click(function(e) {
- var a = new Array("富强", "民主", "文明", "和谐", "自由", "平等", "公正" ,"法治", "爱国", "敬业", "诚信", "友善");
- var $i = $("<span/>").text(a[a_idx]);
- a_idx = (a_idx + 1) % a.length;
- var x = e.pageX,
- y = e.pageY;
- $i.css({
- "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
- "top": y - 20,
- "left": x,
- "position": "absolute",
- "font-weight": "bold",
- "color": "#ff6651"
- });
- $("body").append($i);
- $i.animate({
- "top": y - 180,
- "opacity": 0
- },
- 1500,
- function() {
- $i.remove();
- });
- });
-});
-</script>
+// var a_idx = 0;
+// jQuery(document).ready(function($) {
+//  $("body").click(function(e) {
+//  var a = new Array("Woo", "Woot", "Beep", "Boop", "Great", "Fantastic", "Awesome");
+//  var $i = $("<span/>").text(a[a_idx]);
+//  a_idx = (a_idx + 1) % a.length;
+//  var x = e.pageX,
+//  y = e.pageY;
+//  $i.css({
+//  "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+//  "top": y - 20,
+//  "left": x,
+//  "position": "absolute",
+//  "font-weight": "bold",
+// //  "color": "#ff6651"
+//  "color": "#3795E5"
+//  });
+//  $("body").append($i);
+//  $i.animate({
+//  "top": y - 180,
+//  "opacity": 0
+//  },
+//  1500,
+//  function() {
+//  $i.remove();
+//  });
+//  });
+// });
+// </script>
 
 
 

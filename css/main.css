@@ -121,7 +121,8 @@ h2 {
   font-size: 1.5em; 
   padding: 0px 15px;
   border-radius: 0px; 
-  border-left: 5px solid #FF0606; 
+  /* border-left: 5px solid #FF0606;  */
+  border-left: 5px solid #0651FF; 
   color: #000;
   position:relative;
   font-weight: normal;
@@ -140,9 +141,10 @@ h3 {
   /*background:#B9D3EE;
   0px right, 5px botton, 5px fuzzy
   box-shadow: 0px 5px 5px #9FB6CD;*/
-  border-left: 5px solid #FFAB02; 
-  position:relative;
-  color: #747474;
+  /* border-left: 5px solid #FFAB02;  */
+  border-left: 5px solid #02AFFF; 
+  position: relative;
+  color: #555555;
 }
 
 h4 {
@@ -159,7 +161,7 @@ h6 {
   margin-bottom: 20px;
   margin-top: 15px;
   line-height: 2; 
-  color: #999;
+  color: rgb(104, 104, 104);
   padding-left:1.7em;}
 
 p {
@@ -372,7 +374,8 @@ img::-moz-selection {
     margin-right: 10px;
     font-size: .9em;
     background-color: #FFFFFF;
-    text-indent: 10px;
+    text-indent: 0px;
+    /* text-indent: 10px; */
     color: #4F4F4F; 
   }
 
@@ -547,7 +550,8 @@ img::-moz-selection {
     width: 100%;
     max-width: none;
     height: 100%;
-    background: url(http://api.dujin.org/bing/1920.php) top left no-repeat ;
+    /* background: url(http://api.dujin.org/bing/1920.php) top left no-repeat ; */
+    background: url(/images/1920.png) top left no-repeat ;
     background-size: cover; }
 
   .panel-cover--collapsed {
@@ -1312,7 +1316,7 @@ body {
     transform: rotate3d(0, 1, 0, 180deg);
 }
 
-.ih-item.circle.effect.right_to_left .img {
+/* .ih-item.circle.effect.right_to_left .img {
     -webkit-transform-origin: 0% 50%;
     -moz-transform-origin: 0% 50%;
     -ms-transform-origin: 0% 50%;
@@ -1326,7 +1330,7 @@ body {
     -ms-transform: rotate3d(0, 1, 0, -180deg);
     -o-transform: rotate3d(0, 1, 0, -180deg);
     transform: rotate3d(0, 1, 0, -180deg);
-}
+} */
 
 .ih-item a {
     color: #333;
