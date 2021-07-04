@@ -3,10 +3,10 @@
   <channel>
     <title>Brennan Gebotys</title>
     <description>Machine Learning, Statistics, and All Things Cool</description>
-    <link>http://localhost:4000/</link>
-    <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 02 Jul 2021 09:01:49 -0400</pubDate>
-    <lastBuildDate>Fri, 02 Jul 2021 09:01:49 -0400</lastBuildDate>
+    <link>/</link>
+    <atom:link href="/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Sun, 04 Jul 2021 16:11:36 -0400</pubDate>
+    <lastBuildDate>Sun, 04 Jul 2021 16:11:36 -0400</lastBuildDate>
     <generator>Jekyll v3.9.0</generator>
     
       <item>
@@ -84,8 +84,8 @@
 &lt;/ul&gt;
 </description>
         <pubDate>Mon, 16 Nov 2020 00:00:00 -0500</pubDate>
-        <link>http://localhost:4000/201116.html</link>
-        <guid isPermaLink="true">http://localhost:4000/201116.html</guid>
+        <link>/201116.html</link>
+        <guid isPermaLink="true">/201116.html</guid>
         
         
         <category>examples</category>
@@ -326,8 +326,8 @@
 &lt;li&gt;&lt;span id=&quot;yoon2019time&quot;&gt;Yoon, J., Jarrett, D., &amp;amp; van der Schaar, M. (2019). Time-series generative adversarial networks. &lt;i&gt;Advances in Neural Information Processing Systems&lt;/i&gt;, 5508–5518.&lt;/span&gt;&lt;/li&gt;&lt;/ol&gt;
 </description>
         <pubDate>Thu, 23 Jul 2020 00:00:00 -0400</pubDate>
-        <link>http://localhost:4000/20723.html</link>
-        <guid isPermaLink="true">http://localhost:4000/20723.html</guid>
+        <link>/20723.html</link>
+        <guid isPermaLink="true">/20723.html</guid>
         
         
         <category>example</category>
@@ -346,8 +346,8 @@
 
 </description>
         <pubDate>Sun, 19 Apr 2020 00:00:00 -0400</pubDate>
-        <link>http://localhost:4000/20419.html</link>
-        <guid isPermaLink="true">http://localhost:4000/20419.html</guid>
+        <link>/20419.html</link>
+        <guid isPermaLink="true">/20419.html</guid>
         
         
         <category>example</category>
@@ -1007,8 +1007,8 @@ p(z=k \mid x) &amp;amp;= \dfrac{p(x \mid z=k) p(z=k)}{\sum_K p(x \mid z=k) p(z=k
 &lt;/ul&gt;
 </description>
         <pubDate>Sat, 03 Aug 2019 00:00:00 -0400</pubDate>
-        <link>http://localhost:4000/1983.html</link>
-        <guid isPermaLink="true">http://localhost:4000/1983.html</guid>
+        <link>/1983.html</link>
+        <guid isPermaLink="true">/1983.html</guid>
         
         
         <category>example</category>
@@ -1288,8 +1288,8 @@ p(z=k \mid x) &amp;amp;= \dfrac{p(x \mid z=k) p(z=k)}{\sum_K p(x \mid z=k) p(z=k
 &lt;/ul&gt;
 </description>
         <pubDate>Wed, 17 Jul 2019 00:00:00 -0400</pubDate>
-        <link>http://localhost:4000/19717.html</link>
-        <guid isPermaLink="true">http://localhost:4000/19717.html</guid>
+        <link>/19717.html</link>
+        <guid isPermaLink="true">/19717.html</guid>
         
         
         <category>example</category>
