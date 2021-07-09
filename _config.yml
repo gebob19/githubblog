@@ -7,6 +7,7 @@ avatarTitle: Brennan
 # 头像里面的描述
 # avatarDesc: 机器人赛事
 # url: "https://robotkang.cc"
+include: .nojekyll
 
 # Comment
 comment:

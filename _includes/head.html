@@ -3,6 +3,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
+  <meta name="google-site-verification" content="RZCzyXP1cXQ2uzNE4EsjOiFwRSlmxhYOHD1H71Pacs4" />
 
   <title>{% if page.title %}{{ page.title | escape }}{% else %}{{ site.title | escape }}{% endif %}</title>
   <meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
@@ -34,10 +35,10 @@
   <meta name="referrer" content="no-referrer-when-downgrade">
 
 <!-- Valine Comment -->
-    {% if site.data.social.valine_comment.enable and page.comments == true %}
-    <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
-    <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
-   {% endif %}
+{% if site.data.social.valine_comment.enable and page.comments == true %}
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+{% endif %}
 
 <!-- google ads -->
     <!-- <script data-ad-client="ca-pub-7648908799310520" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> -->
